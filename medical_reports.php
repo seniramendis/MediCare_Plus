@@ -1,13 +1,6 @@
 <?php
-session_start();
-include('db_connect.php');
-
-// 1. Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(302);
-    header("Location: Login.php");
-    exit(0);
-}
+require_once 'auth.php';
+require_login();
 
 $user_id = $_SESSION['user_id'];
 
@@ -26,10 +19,14 @@ if ($patient_row = $patient_res->fetch_assoc()) {
 $reports = null;
 if ($patient_id) {
     $report_query = "
-        SELECT id, file_name, file_path, notes, uploaded_by, created_at
-        FROM medical_reports
-        WHERE patient_id = ?
-        ORDER BY created_at DESC
+        SELECT m.id, m.report_title AS file_name, m.file_path,
+               m.report_description AS notes, m.created_at,
+               CONCAT('Dr. ', u.first_name, ' ', u.last_name) AS uploaded_by
+        FROM medical_reports m
+        JOIN doctors d ON m.doctor_id = d.id
+        JOIN users u ON d.user_id = u.id
+        WHERE m.patient_id = ?
+        ORDER BY m.created_at DESC
     ";
     $report_stmt = $conn->prepare($report_query);
     $report_stmt->bind_param("i", $patient_id);
@@ -169,6 +166,5 @@ include('header.php');
 </div>
 
 <?php
-$conn->close();
 include('footer.php');
 ?>

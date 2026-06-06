@@ -1,53 +1,33 @@
-    </main>
-
-    <footer class="site-footer">
-        <div class="footer-grid">
-            <div class="footer-block">
-                <h3>About MediCare Plus Sri Lanka</h3>
-                <p>Sri Lanka's leading digital healthcare platform connecting patients with trusted specialists across the island. Secure appointments, medical records, and expert consultation all in one place.</p>
-            </div>
-            <div class="footer-block">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="Home.php">Home</a></li>
-                    <li><a href="services.php">Services</a></li>
-                    <li><a href="doctors.php">Find a Doctor</a></li>
-                    <li><a href="blog.php">Health Blog</a></li>
-                </ul>
-            </div>
-            <div class="footer-block">
-                <h3>Contact Information</h3>
-                <address>
-                    MediCare Plus Healthcare Ltd.<br>
-                    45 Independence Avenue,<br>
-                    Colombo 7, Sri Lanka 00700<br>
-                    Phone: +94 11 2 345 678<br>
-                    Email: <a href="mailto:support@medicareplus.lk">support@medicareplus.lk</a>
-                </address>
-            </div>
+</main><!-- /.site-main -->
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <span class="logo-icon"><i class="fas fa-heartbeat"></i></span>
+            <span class="footer-brand-name">MediCare Plus</span>
+            <p>Sri Lanka's leading digital healthcare platform connecting patients with trusted specialists. Secure appointments, medical records, and expert consultations — all in one place.</p>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; <?php echo date('Y'); ?> MediCare Plus (Pvt) Ltd. All rights reserved. | Sri Lanka's Premier Healthcare Platform</p>
-            <p>Providing safe, responsive, and accessible patient care management across the nation.</p>
+        <div class="footer-links">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="Home.php"><i class="fas fa-chevron-right"></i> Home</a></li>
+                <li><a href="services.php"><i class="fas fa-chevron-right"></i> Services</a></li>
+                <li><a href="doctors.php"><i class="fas fa-chevron-right"></i> Find a Doctor</a></li>
+                <li><a href="blog.php"><i class="fas fa-chevron-right"></i> Health Blog</a></li>
+                <li><a href="contact.php"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
+            </ul>
         </div>
-    </footer>
+        <div class="footer-contact">
+            <h4>Contact Us</h4>
+            <p><i class="fas fa-map-marker-alt"></i> 45 Independence Avenue, Colombo 7, Sri Lanka</p>
+            <p><i class="fas fa-phone"></i> +94 11 2 345 678</p>
+            <p><i class="fas fa-envelope"></i> <a href="mailto:support@medicareplus.lk">support@medicareplus.lk</a></p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; <?php echo date('Y'); ?> MediCare Plus (Pvt) Ltd. All rights reserved.</p>
+        <p>Sri Lanka's Premier Healthcare Platform</p>
+    </div>
+</footer>
+</body>
 
-    <script>
-        // Minimal enhancement for navigation accessibility and responsive fallback.
-        document.addEventListener('DOMContentLoaded', function() {
-            var nav = document.querySelector('.primary-nav');
-            if (!nav) return;
-            var links = nav.querySelectorAll('a');
-            links.forEach(function(link) {
-                link.addEventListener('focus', function() {
-                    link.classList.add('focus-ring');
-                });
-                link.addEventListener('blur', function() {
-                    link.classList.remove('focus-ring');
-                });
-            });
-        });
-    </script>
-    </body>
-
-    </html>
+</html>

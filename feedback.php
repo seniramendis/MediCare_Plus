@@ -27,7 +27,6 @@ if ($conn && $patientId) {
     $appointmentsResult = $stmt->get_result();
     $appointments = $appointmentsResult->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-    $conn->close();
 }
 
 if (empty($_SESSION['csrf_token'])) {

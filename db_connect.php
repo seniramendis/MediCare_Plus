@@ -1,5 +1,6 @@
 <?php
 // DO NOT CHANGE THESE VARIABLES UNLESS YOUR DB CONFIG CHANGES
+define('DB_CONNECT_LOADED', true);
 $servername = "127.0.0.1";
 $username = "root";
 $password = "";

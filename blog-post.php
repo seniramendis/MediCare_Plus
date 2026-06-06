@@ -1,5 +1,6 @@
 <?php
-include('db_connect.php');
+$pageTitle = 'Blog Post | MediCare Plus';
+require_once 'auth.php';
 include('header.php');
 
 /**
@@ -18,18 +19,14 @@ $post_id = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : 0;
 $post = null;
 
 if ($post_id) {
-    $conn = get_db_connection();
-    if ($conn) {
-        $stmt = $conn->prepare("SELECT * FROM blog_posts WHERE id = ? AND status = 'published'");
-        $stmt->bind_param("i", $post_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        if ($res->num_rows > 0) {
-            $post = $res->fetch_assoc();
-        }
-        $stmt->close();
-        $conn->close();
+    $stmt = $conn->prepare("SELECT * FROM blog_posts WHERE id = ? AND status = 'published'");
+    $stmt->bind_param("i", $post_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows > 0) {
+        $post = $res->fetch_assoc();
     }
+    $stmt->close();
 }
 ?>
 

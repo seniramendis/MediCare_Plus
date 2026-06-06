@@ -1,6 +1,7 @@
 <?php
+$pageTitle = 'Find a Specialist Doctor | MediCare Plus';
 // Include the database connection
-include('db_connect.php');
+require_once 'auth.php';
 
 /**
  * Return a safe image filename — only allow plain filenames with no
@@ -21,7 +22,6 @@ function safe_image_filename(string $value, string $fallback): string
 }
 
 // Fetch doctors by joining the 'users' and 'doctors' tables together
-$conn = get_db_connection();
 $query = "
     SELECT
         u.id AS user_id,
@@ -198,6 +198,5 @@ include('header.php');
 </script>
 
 <?php
-if ($conn) { $conn->close(); }
 include('footer.php');
 ?>

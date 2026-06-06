@@ -1,4 +1,5 @@
 <?php
+$pageTitle = 'Medical Services | MediCare Plus Sri Lanka';
 include('header.php');
 ?>
 

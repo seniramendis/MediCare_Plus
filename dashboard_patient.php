@@ -12,99 +12,122 @@ $unreadCount = 0;
 $recentMessages = [];
 
 if ($connection) {
-    $query = 'SELECT id FROM patients WHERE user_id = ? LIMIT 1';
-    $statement = $connection->prepare($query);
-    if ($statement) {
-        $statement->bind_param('i', $_SESSION['user_id']);
-        $statement->execute();
-        $patient = $statement->get_result()->fetch_assoc();
-        $statement->close();
+    $stmt = $connection->prepare('SELECT id FROM patients WHERE user_id = ? LIMIT 1');
+    if ($stmt) {
+        $stmt->bind_param('i', $_SESSION['user_id']);
+        $stmt->execute();
+        $patient = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
     }
 
     if ($patient) {
-        $scheduleQuery = "SELECT a.appointment_date, a.status, u.first_name, u.last_name, d.specialization FROM appointments a JOIN doctors d ON d.id = a.doctor_id JOIN users u ON u.id = d.user_id WHERE a.patient_id = ? AND a.appointment_date >= NOW() ORDER BY a.appointment_date ASC LIMIT 5";
-        $scheduleStatement = $connection->prepare($scheduleQuery);
-        if ($scheduleStatement) {
-            $scheduleStatement->bind_param('i', $patient['id']);
-            $scheduleStatement->execute();
-            $patientAppointments = $scheduleStatement->get_result()->fetch_all(MYSQLI_ASSOC);
-            $scheduleStatement->close();
+        $sq = "SELECT a.appointment_date, a.status, u.first_name, u.last_name, d.specialization
+               FROM appointments a
+               JOIN doctors d ON d.id = a.doctor_id
+               JOIN users u ON u.id = d.user_id
+               WHERE a.patient_id = ? AND a.appointment_date >= NOW()
+               ORDER BY a.appointment_date ASC LIMIT 5";
+        $ss = $connection->prepare($sq);
+        if ($ss) {
+            $ss->bind_param('i', $patient['id']);
+            $ss->execute();
+            $patientAppointments = $ss->get_result()->fetch_all(MYSQLI_ASSOC);
+            $ss->close();
         }
-        // messaging summaries for patient
-        $unreadCount = get_unread_count($_SESSION['user_id']);
-        $recentMessages = fetch_inbox($_SESSION['user_id']);
-        if (!empty($recentMessages)) {
-            $recentMessages = array_slice($recentMessages, 0, 5);
-        }
+        $unreadCount   = get_unread_count($_SESSION['user_id']);
+        $recentMessages = array_slice(fetch_inbox($_SESSION['user_id']), 0, 5);
     }
 }
 
 include 'header.php';
 ?>
-<section class="page-panel">
-    <div class="page-title">Patient Dashboard</div>
-    <p class="content-panel">Welcome back, <?php echo e($user['first_name']); ?>. Manage your booked visits, reports, and messages from one secure location.</p>
+<div class="page-panel">
 
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <div>
+            <h2>Welcome back, <?php echo e($user['first_name']); ?>! 👋</h2>
+            <p>Manage your appointments, medical records, and messages from one secure place.</p>
+        </div>
+        <div class="welcome-banner-icon"><i class="fas fa-user-injured"></i></div>
+    </div>
+
+    <!-- Summary Cards -->
     <div class="summary-grid">
         <div class="summary-card">
+            <div class="card-icon"><i class="fas fa-calendar-check"></i></div>
             <strong><?php echo count($patientAppointments); ?></strong>
-            <span>Upcoming appointments</span>
+            <span>Upcoming Appointments</span>
         </div>
         <div class="summary-card">
-            <strong><a href="medical_reports.php">View reports</a></strong>
-            <span>Latest medical documents</span>
-        </div>
-        <div class="summary-card">
-            <strong><a href="chat_engine.php">Open chat</a></strong>
-            <span>Connect with your doctor</span>
-        </div>
-        <div class="summary-card">
+            <div class="card-icon"><i class="fas fa-envelope"></i></div>
             <strong><?php echo (int)$unreadCount; ?></strong>
-            <span>Unread messages</span>
+            <span>Unread Messages</span>
+        </div>
+        <div class="summary-card">
+            <div class="card-icon"><i class="fas fa-file-medical"></i></div>
+            <strong><a href="medical_reports.php">View</a></strong>
+            <span>Medical Reports</span>
+        </div>
+        <div class="summary-card">
+            <div class="card-icon"><i class="fas fa-comments"></i></div>
+            <strong><a href="chat_engine.php">Open</a></strong>
+            <span>Doctor Chat</span>
         </div>
     </div>
 
+    <!-- Quick Actions -->
+    <div class="page-actions">
+        <a class="button primary-button" href="book_appointment.php"><i class="fas fa-plus"></i> Book Appointment</a>
+        <a class="button outline-button" href="medical_reports.php"><i class="fas fa-file-medical"></i> My Reports</a>
+        <a class="button outline-button" href="chat_engine.php"><i class="fas fa-comments"></i> Messages<?php if($unreadCount>0): ?> (<?php echo (int)$unreadCount; ?>)<?php endif; ?></a>
+        <a class="button outline-button" href="feedback.php"><i class="fas fa-star"></i> Leave Feedback</a>
+    </div>
+
+    <!-- Upcoming Appointments -->
     <div class="content-panel">
-        <h3>Your next appointments</h3>
+        <h3><i class="fas fa-calendar-alt"></i> Upcoming Appointments</h3>
         <?php if (!empty($patientAppointments)): ?>
             <table class="card-table">
                 <thead>
                     <tr>
                         <th>Doctor</th>
                         <th>Specialty</th>
-                        <th>Date</th>
+                        <th>Date &amp; Time</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($patientAppointments as $appointment): ?>
+                    <?php foreach ($patientAppointments as $appt): ?>
                         <tr>
-                            <td><?php echo e($appointment['first_name'] . ' ' . $appointment['last_name']); ?></td>
-                            <td><?php echo e($appointment['specialization']); ?></td>
-                            <td><?php echo e(date('M j, Y H:i', strtotime($appointment['appointment_date']))); ?></td>
-                            <td><span class="status-pill <?php echo e($appointment['status']); ?>"><?php echo ucfirst($appointment['status']); ?></span></td>
+                            <td><strong><?php echo e('Dr. ' . $appt['first_name'] . ' ' . $appt['last_name']); ?></strong></td>
+                            <td><?php echo e($appt['specialization']); ?></td>
+                            <td><i class="fas fa-clock" style="color:var(--text-muted);font-size:.8rem;margin-right:.3rem;"></i><?php echo e(date('M j, Y  H:i', strtotime($appt['appointment_date']))); ?></td>
+                            <td><span class="status-pill <?php echo e($appt['status']); ?>"><?php echo ucfirst(e($appt['status'])); ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         <?php else: ?>
-            <p class="content-panel">You have no upcoming appointments yet. Book a new consultation from the appointments page.</p>
+            <div class="empty-state">
+                <i class="fas fa-calendar-plus"></i>
+                <p>No upcoming appointments. <a href="book_appointment.php">Book your first consultation</a>.</p>
+            </div>
         <?php endif; ?>
     </div>
 
+    <!-- Recent Messages -->
     <div class="content-panel">
-        <h3>Recent messages</h3>
+        <h3><i class="fas fa-inbox"></i> Recent Messages</h3>
         <?php if (empty($recentMessages)): ?>
-            <p>No recent messages.</p>
+            <div class="empty-state">
+                <i class="fas fa-comment-slash"></i>
+                <p>No messages yet.</p>
+            </div>
         <?php else: ?>
             <table class="card-table">
                 <thead>
-                    <tr>
-                        <th>From</th>
-                        <th>Subject</th>
-                        <th>Date</th>
-                        <th></th>
-                    </tr>
+                    <tr><th>From</th><th>Subject</th><th>Date</th><th></th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($recentMessages as $m): ?>
@@ -119,5 +142,6 @@ include 'header.php';
             </table>
         <?php endif; ?>
     </div>
-</section>
+
+</div>
 <?php include 'footer.php'; ?>

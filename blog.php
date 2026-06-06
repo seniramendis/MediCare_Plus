@@ -1,5 +1,6 @@
 <?php
-include('db_connect.php');
+$pageTitle = 'Health & Wellness Blog | MediCare Plus';
+require_once 'auth.php';
 include('header.php');
 
 /**
@@ -21,7 +22,6 @@ function safe_image_filename($value, $fallback)
 }
 
 // Direct database query
-$conn = get_db_connection();
 $query = "SELECT * FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC";
 $result = $conn ? $conn->query($query) : false;
 ?>
@@ -50,6 +50,5 @@ $result = $conn ? $conn->query($query) : false;
     </div>
 
     <?php
-    if ($conn) { $conn->close(); }
     include('footer.php');
     ?>
