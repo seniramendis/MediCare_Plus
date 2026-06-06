@@ -1,4 +1,5 @@
 <?php
+require_once 'auth.php';
 $pageTitle = 'Our Services';
 include 'header.php';
 

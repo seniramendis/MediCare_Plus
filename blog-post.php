@@ -1,4 +1,5 @@
 <?php
+require_once 'auth.php';
 $pageTitle = 'Blog Post';
 include 'header.php';
 

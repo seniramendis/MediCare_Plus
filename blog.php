@@ -1,4 +1,5 @@
 <?php
+require_once 'auth.php';
 $pageTitle = 'Health Blogs & Tips';
 include 'header.php';
 
