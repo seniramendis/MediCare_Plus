@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'db_connect.php';
+require_once 'functions.php';
 
 $pageTitle = 'Join MediCare Plus | Sri Lanka\'s Healthcare Platform';
 $errors = [];
@@ -47,17 +48,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Password and confirm password must match.';
     }
 
-    if (empty($errors) && user_exists_by_email($email)) {
+    if (empty($errors) && fetch_user_by_email($email)) {
         $errors[] = 'An account with that email already exists. Please login instead.';
     }
 
     if (empty($errors)) {
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-        $userId = create_user($firstName, $lastName, $email, $passwordHash, 'patient');
+        $created = create_user($firstName, $lastName, $email, $password, 'patient');
 
-        if ($userId !== false) {
-            if (!create_patient_profile($userId)) {
-                error_log('Failed to create patient profile for user: ' . $userId);
+        if ($created) {
+            $user = fetch_user_by_email($email);
+            if ($user && !create_patient_profile($user['id'])) {
+                error_log('Failed to create patient profile for user: ' . $user['id']);
             }
             http_response_code(302);
             header('Location: Login.php?registered=1');

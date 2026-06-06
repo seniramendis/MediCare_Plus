@@ -2,7 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
+// Add this line at the top of header.php
+require_once 'functions.php';
 // Safely check if logged in and grab the role without throwing errors
 $isLoggedIn = isset($_SESSION['user_id']);
 $userRole = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : '';
