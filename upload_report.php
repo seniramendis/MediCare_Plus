@@ -12,7 +12,19 @@ $patients = fetch_all_patients();
 $success = false;
 $error = '';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $submittedToken = filter_input(INPUT_POST, 'csrf_token', FILTER_UNSAFE_RAW) ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $submittedToken)) {
+        http_response_code(403);
+        header('Content-Type: text/plain; charset=UTF-8');
+        echo 'Invalid CSRF token.';
+        exit(0);
+    }
+
     $patientId = isset($_POST['patient_id']) ? (int)$_POST['patient_id'] : 0;
     $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
 
@@ -27,17 +39,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileTmp = $file['tmp_name'];
 
         // Validate file: max 10MB, PDF/DOC/DOCX/TXT/JPG/PNG
-        $maxSize = 10 * 1024 * 1024; // 10MB
+        $maxSize    = 10 * 1024 * 1024;
         $allowedExt = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png'];
-        $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $allowedMime = [
+            'pdf'  => 'application/pdf',
+            'doc'  => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'txt'  => 'text/plain',
+            'jpg'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png'  => 'image/png',
+        ];
+        $fileExt  = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $fileMime = mime_content_type($fileTmp);
 
         if ($fileSize > $maxSize) {
             $error = 'File size exceeds 10MB limit.';
-        } elseif (!in_array($fileExt, $allowedExt)) {
+        } elseif (!in_array($fileExt, $allowedExt, true)) {
             $error = 'File type not allowed. Please upload PDF, DOC, DOCX, TXT, JPG, or PNG.';
+        } elseif (!isset($allowedMime[$fileExt]) || $fileMime !== $allowedMime[$fileExt]) {
+            $error = 'File content does not match the declared file type.';
         } else {
-            // Create safe filename
-            $safeFileName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileName);
+            // Build safe filename using only a timestamp and the validated extension —
+            // never trust the original filename for the stored name.
+            $safeFileName = time() . '_' . bin2hex(random_bytes(8)) . '.' . $fileExt;
             $uploadDir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'reports' . DIRECTORY_SEPARATOR;
             $uploadPath = $uploadDir . $safeFileName;
 
@@ -71,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="post" enctype="multipart/form-data" class="form">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
         <div class="form-group">
             <label for="patient_id">Select Patient:</label>
             <select id="patient_id" name="patient_id" required>

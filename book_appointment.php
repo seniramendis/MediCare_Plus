@@ -15,7 +15,17 @@ if (!$patient) {
     $errors[] = 'Your patient record is not available. Please contact support.';
 }
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($errors)) {
+    $submittedToken = filter_input(INPUT_POST, 'csrf_token', FILTER_UNSAFE_RAW) ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $submittedToken)) {
+        http_response_code(403);
+        die('Invalid CSRF token.');
+    }
+
     $selectedDoctorId = filter_input(INPUT_POST, 'doctor_id', FILTER_VALIDATE_INT);
     $appointmentDate = trim(filter_input(INPUT_POST, 'appointment_date', FILTER_UNSAFE_RAW) ?: '');
     $notes = trim(filter_input(INPUT_POST, 'notes', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '');
@@ -85,6 +95,7 @@ include 'header.php';
 
     <div class="content-panel">
         <form action="book_appointment.php" method="post" class="booking-form">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
             <div class="form-group">
                 <label for="doctor_id">Choose a doctor</label>
                 <select id="doctor_id" name="doctor_id" required>

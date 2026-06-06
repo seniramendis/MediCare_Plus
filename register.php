@@ -8,7 +8,19 @@ $firstName = '';
 $lastName = '';
 $email = '';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $submittedToken = filter_input(INPUT_POST, 'csrf_token', FILTER_UNSAFE_RAW) ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $submittedToken)) {
+        http_response_code(403);
+        header('Content-Type: text/plain; charset=UTF-8');
+        echo 'Invalid CSRF token.';
+        exit(0);
+    }
+
     $firstName = trim(filter_input(INPUT_POST, 'first_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '');
     $lastName = trim(filter_input(INPUT_POST, 'last_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '');
     $email = trim(filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL) ?: '');
@@ -47,8 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!create_patient_profile($userId)) {
                 error_log('Failed to create patient profile for user: ' . $userId);
             }
+            http_response_code(302);
             header('Location: Login.php?registered=1');
-            exit;
+            exit(0);
         }
 
         $errors[] = 'Unable to register at this time. Please try again later.';
@@ -73,6 +86,7 @@ include 'header.php';
         <?php endif; ?>
 
         <form action="register.php" method="post" class="auth-form" novalidate>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
             <div class="form-row">
                 <div class="form-group half-width">
                     <label for="first_name">First name</label>

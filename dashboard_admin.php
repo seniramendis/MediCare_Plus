@@ -13,10 +13,10 @@ function fetch_count($connection, $sql)
     return $result ? (int) $result->fetch_row()[0] : 0;
 }
 
-$totalPatients = fetch_count($connection, 'SELECT COUNT(*) FROM patients');
-$totalDoctors = fetch_count($connection, 'SELECT COUNT(*) FROM doctors');
-$totalAppointments = fetch_count($connection, 'SELECT COUNT(*) FROM appointments');
-$totalMessages = fetch_count($connection, 'SELECT COUNT(*) FROM messages');
+$totalPatients    = $connection ? fetch_count($connection, 'SELECT COUNT(*) FROM patients') : 0;
+$totalDoctors     = $connection ? fetch_count($connection, 'SELECT COUNT(*) FROM doctors') : 0;
+$totalAppointments = $connection ? fetch_count($connection, 'SELECT COUNT(*) FROM appointments') : 0;
+$totalMessages    = $connection ? fetch_count($connection, 'SELECT COUNT(*) FROM messages') : 0;
 
 $unreadCount = 0;
 $recentMessages = [];

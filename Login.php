@@ -6,7 +6,17 @@ $pageTitle = 'Login | MediCare Plus Sri Lanka';
 $errors = [];
 $email = '';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $submittedToken = filter_input(INPUT_POST, 'csrf_token', FILTER_UNSAFE_RAW) ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $submittedToken)) {
+        http_response_code(403);
+        die('Invalid CSRF token.');
+    }
+
     $email = trim(filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL) ?: '');
     $password = trim(filter_input(INPUT_POST, 'password', FILTER_UNSAFE_RAW) ?: '');
 
@@ -27,17 +37,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_role'] = $user['role'];
 
             if ($user['role'] === 'admin') {
+                http_response_code(302);
                 header('Location: dashboard_admin.php');
-                exit;
+                exit(0);
             }
 
             if ($user['role'] === 'doctor') {
+                http_response_code(302);
                 header('Location: dashboard_doctor.php');
-                exit;
+                exit(0);
             }
 
+            http_response_code(302);
             header('Location: appointments.php');
-            exit;
+            exit(0);
         }
 
         $errors[] = 'Login failed. Check your email and password and try again.';
@@ -68,6 +81,7 @@ include 'header.php';
         <?php endif; ?>
 
         <form action="Login.php" method="post" class="auth-form" novalidate>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
             <div class="form-group">
                 <label for="email">Email address</label>
                 <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" required>

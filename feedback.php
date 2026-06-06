@@ -19,18 +19,31 @@ $appointmentsQuery = "SELECT a.id, a.doctor_id, a.appointment_date, d.user_id as
                       ORDER BY a.appointment_date DESC";
 
 $conn = get_db_connection();
-$stmt = $conn->prepare($appointmentsQuery);
-$stmt->bind_param('i', $patientId);
-$stmt->execute();
-$appointmentsResult = $stmt->get_result();
-$appointments = $appointmentsResult->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
-$conn->close();
+$appointments = [];
+if ($conn && $patientId) {
+    $stmt = $conn->prepare($appointmentsQuery);
+    $stmt->bind_param('i', $patientId);
+    $stmt->execute();
+    $appointmentsResult = $stmt->get_result();
+    $appointments = $appointmentsResult->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    $conn->close();
+}
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 $success = false;
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $submittedToken = filter_input(INPUT_POST, 'csrf_token', FILTER_UNSAFE_RAW) ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $submittedToken)) {
+        http_response_code(403);
+        die('Invalid CSRF token.');
+    }
+
     $appointmentId = isset($_POST['appointment_id']) ? (int)$_POST['appointment_id'] : 0;
     $rating = isset($_POST['rating']) ? (int)$_POST['rating'] : 0;
     $comment = isset($_POST['comment']) ? trim($_POST['comment']) : '';
@@ -105,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <textarea id="comment" name="comment" rows="4" maxlength="500" placeholder="Share your experience..."></textarea>
             </div>
 
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
             <button type="submit" class="button">Submit Feedback</button>
         </form>
     <?php endif; ?>

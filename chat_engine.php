@@ -43,33 +43,39 @@ include 'header.php';
         <?php endif; ?>
     </div>
 
-    <?php if (isset($_GET['view_user']) && is_numeric($_GET['view_user'])):
-        $other = (int) $_GET['view_user'];
-        $conversation = fetch_conversation($user['id'], $other);
+    <?php if (isset($_GET['view_user']) && is_numeric($_GET['view_user'])): ?>
+        <?php
+        $other     = (int) $_GET['view_user'];
         $otherUser = fetch_user_by_id($other);
-        if ($otherUser) {
-            // Mark all messages sent to the current user by this correspondent as read
+        ?>
+        <?php if ($otherUser): ?>
+            <?php
+            $conversation = fetch_conversation($user['id'], $other);
             mark_conversation_read($user['id'], $other);
-        }
-    ?>
-        <div class="content-panel">
-            <h3>Conversation with <?php echo htmlspecialchars($otherUser['first_name'] . ' ' . $otherUser['last_name'], ENT_QUOTES, 'UTF-8'); ?></h3>
-            <div class="conversation">
-                <?php if (empty($conversation)): ?>
-                    <p>No messages yet. Use compose to send the first message.</p>
-                <?php else: ?>
-                    <?php foreach ($conversation as $m): ?>
-                        <div class="message <?php echo ($m['sender_id'] === $user['id']) ? 'outgoing' : 'incoming'; ?>">
-                            <div class="message-meta"><strong><?php echo htmlspecialchars($m['sender_first'] . ' ' . $m['sender_last'], ENT_QUOTES, 'UTF-8'); ?></strong> • <?php echo htmlspecialchars(date('M j, Y H:i', strtotime($m['sent_at'])), ENT_QUOTES, 'UTF-8'); ?></div>
-                            <div class="message-body"><?php echo nl2br(htmlspecialchars($m['body'], ENT_QUOTES, 'UTF-8')); ?></div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+            ?>
+            <div class="content-panel">
+                <h3>Conversation with <?php echo htmlspecialchars($otherUser['first_name'] . ' ' . $otherUser['last_name'], ENT_QUOTES, 'UTF-8'); ?></h3>
+                <div class="conversation">
+                    <?php if (empty($conversation)): ?>
+                        <p>No messages yet. Use compose to send the first message.</p>
+                    <?php else: ?>
+                        <?php foreach ($conversation as $m): ?>
+                            <div class="message <?php echo htmlspecialchars(((int)$m['sender_id'] === (int)$user['id']) ? 'outgoing' : 'incoming', ENT_QUOTES, 'UTF-8'); ?>">
+                                <div class="message-meta">
+                                    <strong><?php echo htmlspecialchars($m['sender_first'] . ' ' . $m['sender_last'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                                    &bull;
+                                    <?php echo htmlspecialchars(date('M j, Y H:i', strtotime($m['sent_at'])), ENT_QUOTES, 'UTF-8'); ?>
+                                </div>
+                                <div class="message-body"><?php echo nl2br(htmlspecialchars($m['body'], ENT_QUOTES, 'UTF-8')); ?></div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <div class="page-actions">
+                    <a class="button primary-button" href="compose_message.php?to=<?php echo (int)$other; ?>">Reply</a>
+                </div>
             </div>
-            <div class="page-actions">
-                <a class="button primary-button" href="compose_message.php?to=<?php echo (int)$other; ?>">Reply</a>
-            </div>
-        </div>
+        <?php endif; ?>
     <?php endif; ?>
 </section>
 <?php include 'footer.php'; ?>

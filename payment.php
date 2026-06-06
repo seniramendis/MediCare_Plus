@@ -6,13 +6,23 @@ $pageTitle = 'Payment';
 include 'header.php';
 
 $appointmentId = isset($_GET['appointment_id']) ? (int)$_GET['appointment_id'] : 0;
-$amount = isset($_GET['amount']) ? floatval($_GET['amount']) : 0;
+$amount        = isset($_GET['amount']) ? floatval($_GET['amount']) : 0;
 $doctorName = isset($_GET['doctor']) ? trim($_GET['doctor']) : 'Doctor';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $success = false;
-$error = '';
+$error   = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $submittedToken = filter_input(INPUT_POST, 'csrf_token', FILTER_UNSAFE_RAW) ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $submittedToken)) {
+        http_response_code(403);
+        die('Invalid CSRF token.');
+    }
+
     $paymentMethod = isset($_POST['payment_method']) ? trim($_POST['payment_method']) : '';
     $cardName = isset($_POST['card_name']) ? trim($_POST['card_name']) : '';
     $cardNumber = isset($_POST['card_number']) ? trim($_POST['card_number']) : '';
@@ -34,14 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <h3>Payment Processed Successfully!</h3>
-            <p>Your appointment with <?php echo e($doctorName); ?> has been confirmed.</p>
+            <p>Your appointment with <?php echo htmlspecialchars($doctorName, ENT_QUOTES, 'UTF-8'); ?> has been confirmed.</p>
             <p>Amount paid: <strong>LKR <?php echo number_format($amount, 0); ?></strong></p>
             <a href="dashboard_patient.php" class="button">Back to Dashboard</a>
         </div>
     <?php else: ?>
         <div class="payment-card">
             <h2>Consultation Fee</h2>
-            <p>Doctor: <strong><?php echo e($doctorName); ?></strong></p>
+            <p>Doctor: <strong><?php echo htmlspecialchars($doctorName, ENT_QUOTES, 'UTF-8'); ?></strong></p>
             <p class="amount">Amount: <span>LKR <?php echo number_format($amount, 0); ?></span></p>
 
             <?php if ($error): ?>
@@ -49,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form method="post" class="form">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="form-group">
                     <label for="payment_method">Payment Method:</label>
                     <select id="payment_method" name="payment_method" required>
@@ -80,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <button type="submit" class="button">Pay LKR <?php echo number_format($amount, 0); ?></button>
+                <button type="submit" class="button">Pay LKR <?php echo htmlspecialchars(number_format($amount, 0), ENT_QUOTES, 'UTF-8'); ?></button>
                 <a href="book_appointment.php" class="button secondary">Cancel</a>
             </form>
         </div>

@@ -1,13 +1,32 @@
 <?php
 // Database connection and helper functions for MediCare Plus.
-// Use explicit host and port to match local XAMPP MySQL configuration.
-// If XAMPP shows MySQL listening on port 3307 (see XAMPP Control Panel), set DB_PORT accordingly.
-const DB_HOST = '127.0.0.1';
-const DB_PORT = 3307;
-// Database name as seen in phpMyAdmin (adjusted to actual DB name)
-const DB_NAME = 'medicare_databs';
-const DB_USER = 'root';
-const DB_PASS = '';
+// Credentials are loaded from .env to avoid hardcoding sensitive values in source code.
+(function () {
+    $envFile = __DIR__ . DIRECTORY_SEPARATOR . '.env';
+    if (!is_readable($envFile)) {
+        error_log('db_connect.php: .env file not found or not readable at ' . $envFile);
+        return;
+    }
+    foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#' || strpos($line, '=') === false) {
+            continue;
+        }
+        [$key, $value] = explode('=', $line, 2);
+        $key   = trim($key);
+        $value = trim($value);
+        if (!defined($key)) {
+            define($key, $value);
+        }
+    }
+})();
+
+// Fallback defaults so the app fails clearly if .env is missing
+if (!defined('DB_HOST')) define('DB_HOST', '127.0.0.1');
+if (!defined('DB_PORT')) define('DB_PORT', '3306');
+if (!defined('DB_NAME')) define('DB_NAME', '');
+if (!defined('DB_USER')) define('DB_USER', '');
+if (!defined('DB_PASS')) define('DB_PASS', '');
 
 /**
  * Open a new MySQL database connection.
@@ -17,7 +36,7 @@ const DB_PASS = '';
 function get_db_connection()
 {
     // Connect using explicit port to avoid "connection refused" when MySQL uses a non-default port.
-    $connection = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+    $connection = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, (int)DB_PORT);
     if ($connection->connect_errno) {
         error_log('Database connection failed: ' . $connection->connect_error);
         return null;
@@ -474,6 +493,38 @@ function fetch_all_doctors()
 
     $connection->close();
     return $doctors;
+}
+
+/**
+ * Fetch a doctor profile by user id (users.id).
+ *
+ * @param int $userId
+ * @return array|null
+ */
+function fetch_doctor_by_user_id($userId)
+{
+    $connection = get_db_connection();
+    if (!$connection) {
+        return null;
+    }
+
+    $query = 'SELECT d.id, d.specialization, d.qualifications, d.experience_years, d.consultation_fee, d.availability, d.rating, d.profile_image, u.first_name, u.last_name FROM doctors d JOIN users u ON u.id = d.user_id WHERE d.user_id = ? AND u.status = "active" LIMIT 1';
+    $statement = $connection->prepare($query);
+    if (!$statement) {
+        error_log('Prepare failed: ' . $connection->error);
+        $connection->close();
+        return null;
+    }
+
+    $statement->bind_param('i', $userId);
+    $statement->execute();
+    $result = $statement->get_result();
+    $doctor = $result->fetch_assoc();
+
+    $statement->close();
+    $connection->close();
+
+    return $doctor ?: null;
 }
 
 /**

@@ -1,75 +1,67 @@
 <?php
-require_once 'auth.php';
-$pageTitle = 'Blog Post';
-include 'header.php';
+include('db_connect.php');
+include('header.php');
 
-$postId = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : 0;
-$post = $postId ? fetch_blog_post_by_id($postId) : null;
-
-if (!$post) {
-    echo '<section class="container"><div class="empty-state">Post not found.</div></section>';
-    include 'footer.php';
-    exit;
+/**
+ * Return a safe image filename — rejects URL schemes and path separators.
+ */
+function safe_image_filename(string $value, string $fallback): string
+{
+    $value = trim($value);
+    if ($value === '' || preg_match('/[:\/\\\\]/', $value)) {
+        return $fallback;
+    }
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-// Fetch author info
-$conn = get_db_connection();
-$authorQuery = 'SELECT first_name, last_name FROM users WHERE id = ? LIMIT 1';
-$stmt = $conn->prepare($authorQuery);
-$stmt->bind_param('i', $post['author_id']);
-$stmt->execute();
-$authorResult = $stmt->get_result();
-$author = $authorResult->fetch_assoc();
-$stmt->close();
-$conn->close();
-$authorName = $author ? $author['first_name'] . ' ' . $author['last_name'] : 'Unknown';
+$post_id = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : 0;
+$post = null;
+
+if ($post_id) {
+    $conn = get_db_connection();
+    if ($conn) {
+        $stmt = $conn->prepare("SELECT * FROM blog_posts WHERE id = ? AND status = 'published'");
+        $stmt->bind_param("i", $post_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($res->num_rows > 0) {
+            $post = $res->fetch_assoc();
+        }
+        $stmt->close();
+        $conn->close();
+    }
+}
 ?>
 
-<section class="container">
-    <article class="blog-post">
-        <h1><?php echo e($post['title']); ?></h1>
-        <p class="meta">
-            <strong>By:</strong> <?php echo e($authorName); ?> |
-            <strong>Published:</strong> <?php echo date('M d, Y', strtotime($post['created_at'])); ?>
+<section style="max-width: 800px; margin: 50px auto; padding: 40px; background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <?php if ($post): ?>
+
+        <?php if (!empty($post['image_url'])): ?>
+            <img src="images/<?php echo safe_image_filename($post['image_url'], 'default-blog.jpg'); ?>" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin-bottom: 30px;" alt="Blog Header">
+        <?php endif; ?>
+
+        <h1 style="color: #2b6cb0; margin-bottom: 15px; font-size: 2.2rem;"><?php echo htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
+
+        <p style="color: #718096; border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px;">
+            <strong>By:</strong> <?php echo htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8'); ?> |
+            <strong>Published:</strong> <?php echo htmlspecialchars(date('F d, Y', strtotime($post['published_at'])), ENT_QUOTES, 'UTF-8'); ?>
         </p>
 
-        <div class="blog-content">
-            <?php echo nl2br(e($post['content'])); ?>
+        <div style="line-height: 1.8; color: #4a5568; font-size: 1.1rem;">
+            <?php echo nl2br(htmlspecialchars($post['body'], ENT_QUOTES, 'UTF-8')); ?>
         </div>
 
-        <div class="actions">
-            <a href="blog.php" class="button">Back to Posts</a>
+        <div style="margin-top: 40px;">
+            <a href="blog.php" style="background: #e2e8f0; color: #4a5568; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;">&larr; Back to Posts</a>
         </div>
-    </article>
+
+    <?php else: ?>
+        <div style="text-align: center; color: #e53e3e;">
+            <h2>Article Not Found</h2>
+            <p>The post you are looking for does not exist.</p>
+            <a href="blog.php">Return to Blog</a>
+        </div>
+    <?php endif; ?>
 </section>
 
-<style>
-    .blog-post {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .blog-post h1 {
-        margin-bottom: 10px;
-    }
-
-    .blog-post .meta {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 30px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 15px;
-    }
-
-    .blog-content {
-        line-height: 1.8;
-        color: #333;
-        margin-bottom: 30px;
-    }
-
-    .actions {
-        margin-top: 30px;
-    }
-</style>
-
-<?php include 'footer.php'; ?>
+<?php include('footer.php'); ?>

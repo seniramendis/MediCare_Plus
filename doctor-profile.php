@@ -1,11 +1,11 @@
 <?php
 require_once 'auth.php';
 $pageTitle = 'Doctor Profile | MediCare Plus';
-$doctorId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$userId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $doctor = null;
 
-if ($doctorId) {
-    $doctor = fetch_doctor_by_id($doctorId);
+if ($userId) {
+    $doctor = fetch_doctor_by_user_id($userId);
 }
 
 include 'header.php';

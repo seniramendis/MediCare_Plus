@@ -61,7 +61,7 @@ if ($selectedPatientId) {
                             <td><?php echo e($r['notes']); ?></td>
                             <td><?php echo e($r['uploaded_by']); ?></td>
                             <td>
-                                <a class="button" href="download_report.php?id=<?php echo urlencode($r['id']); ?>">Download</a>
+                                <a class="button" href="download_report.php?id=<?php echo htmlspecialchars((int)$r['id'], ENT_QUOTES, 'UTF-8'); ?>">Download</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

@@ -42,8 +42,9 @@ function current_user_role()
 function require_login()
 {
     if (!is_logged_in()) {
+        http_response_code(302);
         header('Location: Login.php');
-        exit;
+        exit(0);
     }
 }
 
@@ -60,8 +61,9 @@ function require_role($roles)
     }
 
     if (!in_array(current_user_role(), $roles, true)) {
+        http_response_code(302);
         header('Location: Home.php');
-        exit;
+        exit(0);
     }
 }
 

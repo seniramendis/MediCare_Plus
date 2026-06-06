@@ -3,7 +3,10 @@ require_once 'db_connect.php';
 
 $conn = get_db_connection();
 if (!$conn) {
-    die('Database connection failed');
+    http_response_code(500);
+    error_log('list_doctors_debug.php: Database connection failed.');
+    echo '<p style="color:red;">Database connection failed. Please check server logs.</p>';
+    exit(0);
 }
 
 $result = $conn->query('SELECT COUNT(*) AS cnt FROM doctors');

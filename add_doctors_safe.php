@@ -3,7 +3,10 @@ require_once 'db_connect.php';
 
 $conn = get_db_connection();
 if (!$conn) {
-    die('Database connection failed');
+    http_response_code(500);
+    error_log('add_doctors_safe.php: Database connection failed.');
+    echo '<p style="color:red;">Database connection failed. Please check server logs.</p>';
+    exit;
 }
 
 // List of 20 doctors (idempotent insert)
@@ -48,8 +51,18 @@ foreach ($doctors as $d) {
     if ($user) {
         $user_id = $user['id'];
     } else {
-        // Insert user
-        $password_hash = password_hash('Doctor@123', PASSWORD_DEFAULT);
+        // Insert user — default password is loaded from .env to avoid hardcoded credentials
+        $envFile = __DIR__ . '/.env';
+        $defaultPassword = 'changeme';
+        if (is_readable($envFile)) {
+            foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+                if (strpos($line, 'DOCTOR_DEFAULT_PASSWORD=') === 0) {
+                    $defaultPassword = substr($line, strlen('DOCTOR_DEFAULT_PASSWORD='));
+                    break;
+                }
+            }
+        }
+        $password_hash = password_hash($defaultPassword, PASSWORD_DEFAULT);
         $stmt = $conn->prepare('INSERT INTO users (first_name, last_name, email, password_hash, role, status, created_at) VALUES (?, ?, ?, ?, "doctor", "active", NOW())');
         $stmt->bind_param('ssss', $first, $last, $email, $password_hash);
         if ($stmt->execute()) {

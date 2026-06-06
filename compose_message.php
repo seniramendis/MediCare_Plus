@@ -8,7 +8,19 @@ $success = '';
 $to = filter_input(INPUT_GET, 'to', FILTER_VALIDATE_INT);
 $recipients = fetch_all_users();
 
+// Generate CSRF token if not already set
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validate CSRF token
+    $submittedToken = filter_input(INPUT_POST, 'csrf_token', FILTER_UNSAFE_RAW) ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $submittedToken)) {
+        http_response_code(403);
+        die('Invalid CSRF token.');
+    }
+
     $recipientId = filter_input(INPUT_POST, 'recipient_id', FILTER_VALIDATE_INT);
     $subject = trim(filter_input(INPUT_POST, 'subject', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '');
     $body = trim(filter_input(INPUT_POST, 'body', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?: '');
@@ -66,6 +78,7 @@ include 'header.php';
                 <label for="body">Message</label>
                 <textarea id="body" name="body" rows="6" required></textarea>
             </div>
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
             <button type="submit" class="button primary-button">Send</button>
         </form>
     </div>
