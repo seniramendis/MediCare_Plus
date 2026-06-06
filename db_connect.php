@@ -891,7 +891,7 @@ function fetch_blog_posts()
         return [];
     }
 
-    $query = 'SELECT id, title, content, author_id, created_at FROM blog_posts ORDER BY created_at DESC';
+    $query = 'SELECT b.id, b.title, b.content, b.author_id, b.created_at, u.first_name, u.last_name FROM blog_posts b LEFT JOIN users u ON b.author_id = u.id ORDER BY b.created_at DESC';
     $result = $connection->query($query);
     $rows = [];
     if ($result) {
