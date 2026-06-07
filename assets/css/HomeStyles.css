@@ -578,3 +578,171 @@ tr:hover td { background: var(--soft-bg); }
     .hero-cta-group { flex-direction: column; align-items: center; }
     .summary-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── 21. HOME PAGE — LOCATION SECTION ── */
+.page-container-home {
+    max-width: 1280px; margin: 0 auto; padding: 80px 5%;
+}
+.section-eyebrow {
+    display: inline-block; background: #ebf8ff; color: var(--secondary-blue);
+    font-size: .78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 2px; padding: 5px 16px; border-radius: 50px; margin-bottom: 12px;
+}
+.section-lead {
+    color: var(--text-muted); font-size: 1rem; max-width: 600px; margin: 10px auto 0;
+}
+.location-content-grid {
+    display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px; align-items: start; margin-top: 40px;
+}
+.location-details h3 { font-size: 1.35rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 20px; }
+.footer-contact { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+.footer-contact li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: .93rem; color: var(--text-muted); line-height: 1.5;
+}
+.footer-contact li i { color: var(--secondary-blue); width: 18px; flex-shrink: 0; margin-top: 3px; }
+.footer-contact a { color: var(--secondary-blue); font-weight: 600; }
+.location-button {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--primary-dark); color: #fff;
+    padding: 12px 26px; border-radius: 50px; font-weight: 700; font-size: .95rem;
+    transition: all .3s;
+}
+.location-button:hover { background: var(--secondary-blue); transform: translateY(-2px); }
+.map-placeholder {
+    border-radius: 18px; overflow: hidden;
+    height: 340px; box-shadow: var(--card-shadow);
+    border: 1px solid var(--border);
+}
+.map-placeholder iframe { display: block; }
+@media (max-width: 768px) {
+    .location-content-grid { grid-template-columns: 1fr; }
+    .map-placeholder { height: 260px; }
+}
+
+/* ── 22. HOME PAGE — ABOUT SECTION ── */
+.About {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-blue) 100%);
+    padding: 80px 5%; color: #fff;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.About h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900;
+    letter-spacing: 2px; margin-bottom: 40px; opacity: .95;
+}
+.AboutText {
+    max-width: 720px; font-size: 1rem; line-height: 1.85;
+    color: rgba(255,255,255,.85);
+}
+.AboutText p { margin-bottom: 18px; }
+.AboutText li { list-style: none; }
+.AboutImage { margin-top: 36px; }
+.AboutImage img { max-height: 120px; opacity: .85; filter: brightness(0) invert(1); }
+.service-link {
+    display: block; color: rgba(255,255,255,.9); text-decoration: none;
+    padding: 6px 0; font-weight: 600; transition: color .2s;
+}
+.service-link:hover { color: #63b3ed; }
+.service-link li { display: inline; }
+
+/* ── 23. MODAL ── */
+.modal {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+}
+.modal.open, .modal[style*="flex"], .modal[style*="block"] { display: flex; }
+.modal-content {
+    background: #fff; border-radius: 20px; max-width: 560px; width: 100%;
+    box-shadow: 0 24px 64px rgba(0,0,0,.25); overflow: hidden;
+    animation: modalIn .3s ease;
+}
+@keyframes modalIn { from { opacity:0; transform: translateY(24px) scale(.97); } to { opacity:1; transform: none; } }
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px 28px 18px;
+    border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-size: 1.2rem; color: var(--primary-dark); margin: 0; }
+.modal-close-btn {
+    background: none; border: none; cursor: pointer; color: var(--text-muted);
+    font-size: .9rem; display: flex; align-items: center; gap: 6px;
+    font-weight: 600; transition: color .2s;
+}
+.modal-close-btn:hover { color: var(--accent-red); }
+.modal-body { padding: 24px 28px; color: var(--text-muted); line-height: 1.7; font-size: .95rem; }
+.modal-body h3 { color: var(--primary-dark); margin-bottom: 12px; }
+.modal-body ul { padding-left: 20px; }
+.modal-body li { margin-bottom: 6px; }
+.modal-footer {
+    padding: 16px 28px 22px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 12px; align-items: center;
+}
+.modal-footer a {
+    color: var(--secondary-blue); font-weight: 600; font-size: .92rem;
+    display: flex; align-items: center; gap: 6px;
+}
+.cancelbtn {
+    background: var(--soft-bg); color: var(--text-muted); border: 1px solid var(--border);
+    padding: 9px 20px; border-radius: 50px; font-weight: 600;
+    cursor: pointer; font-size: .9rem; transition: all .2s;
+}
+.cancelbtn:hover { background: var(--border); color: var(--text-dark); }
+
+/* ── 24. BUTTON VARIANTS ── */
+.button {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 22px; border-radius: 50px; font-weight: 700;
+    font-size: .92rem; cursor: pointer; border: none; transition: all .25s;
+    text-decoration: none; background: var(--primary-dark); color: #fff;
+}
+.button:hover { background: var(--secondary-blue); transform: translateY(-2px); }
+.button-large { padding: 14px 32px; font-size: 1rem; }
+.button-small { padding: 7px 16px; font-size: .8rem; }
+.view-all-services-container { text-align: center; margin-top: 40px; }
+
+/* ── 25. CAROUSEL NAV ARROWS & DOTS ── */
+.service-carousel-container { position: relative; overflow: hidden; }
+.service-slide { display: none; }
+.service-slide:first-child { display: block; }
+.service-prev, .service-next {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,.9); color: var(--primary-dark);
+    border: none; padding: 10px 16px; cursor: pointer;
+    font-size: 1.2rem; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,.12);
+    transition: all .25s; z-index: 10; line-height: 1; text-decoration: none;
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px;
+}
+.service-prev { left: 10px; }
+.service-next { right: 10px; }
+.service-prev:hover, .service-next:hover { background: var(--primary-dark); color: #fff; }
+.service-dots-container { text-align: center; margin-top: 18px; display: flex; gap: 8px; justify-content: center; }
+.service-dot {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--border);
+    cursor: pointer; transition: background .2s, transform .2s;
+}
+.service-dot.active { background: var(--secondary-blue); transform: scale(1.3); }
+
+/* ── 26. HOME DOCTOR CARDS ── */
+.doctor-slide-inner-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+    gap: 24px; padding: 10px 4px;
+}
+.doctor-card {
+    background: #fff; border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--border); box-shadow: var(--card-shadow);
+    transition: transform .3s, box-shadow .3s;
+}
+.doctor-card:hover { transform: translateY(-6px); box-shadow: var(--hover-shadow); }
+.doctor-card img { width: 100%; height: 200px; object-fit: cover; object-position: top; display: block; }
+.doctor-info { padding: 18px; text-align: center; }
+.doctor-info h4 { font-size: 1rem; font-weight: 700; color: var(--primary-dark); margin: 0 0 4px; }
+.doctor-title { font-size: .85rem; color: var(--text-muted); margin: 0 0 6px; }
+.doctor-specialty {
+    display: inline-block; font-size: .72rem; font-weight: 600;
+    color: #0aa698; text-transform: uppercase; letter-spacing: 1.2px;
+    background: #e6f7f6; padding: 3px 12px; border-radius: 30px; margin-bottom: 12px;
+}

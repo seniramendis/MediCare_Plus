@@ -6,11 +6,11 @@ $success = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (file_exists('db_connect.php')) {
         include 'db_connect.php';
-        $name     = mysqli_real_escape_string($conn, trim($_POST['full_name']));
+        $full_name = trim($_POST['full_name']);
+        $name_parts = explode(' ', $full_name, 2);
+        $first_name = mysqli_real_escape_string($conn, $name_parts[0]);
+        $last_name  = mysqli_real_escape_string($conn, $name_parts[1] ?? '');
         $email    = mysqli_real_escape_string($conn, trim($_POST['email']));
-        $phone    = mysqli_real_escape_string($conn, trim($_POST['phone'] ?? ''));
-        $dob      = mysqli_real_escape_string($conn, trim($_POST['dob'] ?? ''));
-        $gender   = mysqli_real_escape_string($conn, trim($_POST['gender'] ?? ''));
         $password = $_POST['password'];
         $confirm  = $_POST['confirm_password'];
 
@@ -24,8 +24,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error = "An account with this email already exists. <a href='Login.php'>Sign in instead?</a>";
             } else {
                 $hashed = password_hash($password, PASSWORD_BCRYPT);
-                $sql = "INSERT INTO users (full_name, email, phone, dob, gender, password, role, created_at)
-                        VALUES ('$name','$email','$phone','$dob','$gender','$hashed','patient', NOW())";
+                $sql = "INSERT INTO users (first_name, last_name, email, password_hash, role, created_at)
+                        VALUES ('$first_name','$last_name','$email','$hashed','patient', NOW())";
                 if (mysqli_query($conn, $sql)) {
                     header("Location: Login.php?registered=1");
                     exit();
@@ -48,6 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/HomeStyles.css?v=3.0">
     <script src="https://kit.fontawesome.com/9e166a3863.js" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -509,7 +510,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <?php if (file_exists('header.php')) include 'header.php'; ?>
+    <?php include 'nav_only.php'; ?>
 
     <div class="auth-page">
 
@@ -664,7 +665,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div><!-- /auth-form-panel -->
     </div><!-- /auth-page -->
 
-    <?php if (file_exists('footer.php')) include 'footer.php'; ?>
+    <?php include 'footer_bare.php'; ?>
 
     <script>
         function togglePw(id, iconId) {

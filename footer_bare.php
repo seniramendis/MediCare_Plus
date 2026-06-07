@@ -114,5 +114,3 @@ function handleNewsletter(e) {
     setTimeout(() => { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Subscribe'; btn.style.background = ''; }, 3000);
 }
 </script>
-</body>
-</html>

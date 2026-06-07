@@ -11,34 +11,21 @@ if (!function_exists('navActive')) {
     function navActive($page, $current) { return strpos($current, $page) !== false ? 'active' : ''; }
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) : 'MediCare Plus' ?></title>
-    <link rel="icon" href="images/Favicon.png" type="image/png">
-    <link rel="stylesheet" href="assets/css/HomeStyles.css?v=3.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', 'DM Sans', 'Segoe UI', system-ui, sans-serif; padding-top: 70px; }
-        .hamburger { display:none; background:none; border:none; cursor:pointer; padding:8px; flex-direction:column; gap:5px; }
-        .hamburger span { display:block; width:24px; height:2px; background:var(--primary-dark); border-radius:2px; transition:all .3s; }
-        .hamburger.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
-        .hamburger.open span:nth-child(2) { opacity:0; }
-        .hamburger.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
-        @media(max-width:768px){
-            .hamburger { display:flex; }
-            .nav-links { display:none; position:fixed; inset:70px 0 0 0; background:rgba(255,255,255,.98); flex-direction:column; align-items:center; justify-content:center; gap:20px; z-index:999; backdrop-filter:blur(10px); }
-            .nav-links.open { display:flex; }
-            .nav-links a { font-size:1.2rem; }
-        }
-        .nav-links a.active { color:var(--secondary-blue) !important; }
-    </style>
-</head>
-<body>
+<style>
+    body { padding-top: 70px; }
+    .hamburger { display:none; background:none; border:none; cursor:pointer; padding:8px; flex-direction:column; gap:5px; }
+    .hamburger span { display:block; width:24px; height:2px; background:var(--primary-dark, #1e3a8a); border-radius:2px; transition:all .3s; }
+    .hamburger.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+    .hamburger.open span:nth-child(2) { opacity:0; }
+    .hamburger.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+    @media(max-width:768px){
+        .hamburger { display:flex; }
+        .nav-links { display:none !important; position:fixed; inset:70px 0 0 0; background:rgba(255,255,255,.98); flex-direction:column; align-items:center; justify-content:center; gap:20px; z-index:999; backdrop-filter:blur(10px); }
+        .nav-links.open { display:flex !important; }
+        .nav-links a { font-size:1.2rem; }
+    }
+    .nav-links a.active { color:var(--secondary-blue, #3182ce) !important; }
+</style>
 <header class="main-header">
     <div class="header-container">
         <a href="Home.php" class="logo"><i class="fas fa-heartbeat"></i> MediCare Plus</a>

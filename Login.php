@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (mysqli_num_rows($result) == 1) {
         $user = mysqli_fetch_assoc($result);
-        if (password_verify($password, $user['password'])) {
+        if (password_verify($password, $user['password_hash'])) {
             if ($user['role'] == 'admin') {
                 $error = "Security Alert: Admins must use the <a href='admin_login.php'>Admin Portal</a>.";
             } elseif ($login_type == 'doctor' && $user['role'] != 'doctor') {
@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error = "You are a Doctor. Please switch to the Doctor Login tab.";
             } else {
                 $_SESSION['user_id']  = $user['id'];
-                $_SESSION['username'] = $user['full_name'];
+                $_SESSION['username'] = $user['first_name'] . ' ' . $user['last_name'];
                 $_SESSION['role']     = $user['role'];
                 if (isset($_SESSION['admin_id'])) unset($_SESSION['admin_id']);
                 header("Location: " . ($user['role'] == 'doctor' ? "dashboard_doctor.php" : "dashboard_patient.php"));
@@ -47,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/HomeStyles.css?v=3.0">
     <script src="https://kit.fontawesome.com/9e166a3863.js" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -475,7 +476,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <?php if (file_exists('header.php')) include 'header.php'; ?>
+    <?php include 'nav_only.php'; ?>
 
     <div class="auth-page">
 
@@ -585,7 +586,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div><!-- /auth-form-panel -->
     </div><!-- /auth-page -->
 
-    <?php if (file_exists('footer.php')) include 'footer.php'; ?>
+    <?php include 'footer_bare.php'; ?>
 
     <script>
         function switchTab(type) {

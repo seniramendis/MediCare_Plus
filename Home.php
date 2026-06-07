@@ -11,7 +11,7 @@ $pageKey = 'home';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? $pageTitle . ' - Medicare Plus' : 'Medicare Plus - Your Lifetime Partner in Health'; ?></title>
     <link rel="icon" href="images/Favicon.png" type="image/png">
-    <link rel="stylesheet" href="HomeStyles.css?v=2.0">
+    <link rel="stylesheet" href="assets/css/HomeStyles.css?v=3.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -598,7 +598,7 @@ $pageKey = 'home';
 </head>
 
 <body>
-    <?php include 'header.php'; ?>
+    <?php include 'nav_only.php'; ?>
 
     <!-- ================================================
      HERO — Photo transition slideshow
@@ -927,7 +927,7 @@ $pageKey = 'home';
         </div>
     </div>
 
-    <?php include 'footer.php'; ?>
+    <?php include 'footer_bare.php'; ?>
     <script src="first.js"></script>
 
     <script>

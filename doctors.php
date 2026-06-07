@@ -19,6 +19,7 @@ $pageTitle = 'Find a Doctor';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/HomeStyles.css?v=3.0">
     <script src="https://kit.fontawesome.com/9e166a3863.js" crossorigin="anonymous"></script>
     <style>
         :root {
@@ -531,7 +532,7 @@ $pageTitle = 'Find a Doctor';
 </head>
 
 <body>
-    <?php if (file_exists('header.php')) include 'header.php'; ?>
+    <?php include 'nav_only.php'; ?>
 
     <!-- ================================================
      PAGE HERO
@@ -623,23 +624,27 @@ $pageTitle = 'Find a Doctor';
         <div class="doctor-grid" id="allDoctorsList">
             <?php
             if (isset($conn)) {
-                $sql = "SELECT d.*,
-              (SELECT AVG(rating) FROM reviews r WHERE r.doctor_id = d.id) as avg_rating,
-              (SELECT COUNT(*) FROM reviews r WHERE r.doctor_id = d.id) as review_count
-              FROM doctors d ORDER BY d.name ASC";
+                $sql = "SELECT d.id, d.user_id, d.specialization, d.rating, d.bio, d.profile_image, d.consultation_fee, d.availability,
+                        CONCAT(u.first_name, ' Dr. ', u.last_name) as display_title,
+                        CONCAT(u.first_name, ' ', u.last_name) as full_name
+                        FROM doctors d
+                        JOIN users u ON d.user_id = u.id
+                        WHERE u.status = 'active'
+                        ORDER BY u.first_name ASC";
                 $result = mysqli_query($conn, $sql);
 
                 if ($result && mysqli_num_rows($result) > 0) {
                     while ($row = mysqli_fetch_assoc($result)) {
-                        $name     = htmlspecialchars($row['name']);
-                        $specialty = htmlspecialchars($row['specialty']);
-                        $title    = htmlspecialchars($row['title']);
-                        $slug     = htmlspecialchars($row['slug'] ?? '');
+                        $doc_id   = (int)$row['id'];
+                        $name     = htmlspecialchars($row['full_name']);
+                        $specialty = htmlspecialchars($row['specialization']);
+                        $title    = 'Specialist – ' . htmlspecialchars($row['specialization']);
                         $bio      = strip_tags($row['bio'] ?? '');
                         if (strlen($bio) > 100) $bio = substr($bio, 0, 100) . '...';
-                        $img      = !empty($row['image_url']) ? htmlspecialchars($row['image_url']) : 'images/placeholder_doctor.png';
-                        $rating   = $row['avg_rating'] ? round($row['avg_rating'], 1) : 0;
-                        $count    = $row['review_count'];
+                        $img_file = $row['profile_image'] ?? '';
+                        $img      = !empty($img_file) ? htmlspecialchars('assets/images/' . $img_file) : 'images/placeholder_doctor.svg';
+                        $rating   = $row['rating'] ? round($row['rating'], 1) : 0;
+                        $count    = 0; // reviews table may not exist yet
                         $full_stars = floor($rating);
                         $has_half = ($rating - $full_stars) >= 0.5;
                         $stars_html = '';
@@ -652,11 +657,11 @@ $pageTitle = 'Find a Doctor';
                         <div class="doctor-card" data-name="<?php echo $name; ?>" data-specialty="<?php echo $specialty; ?>" data-rating="<?php echo $rating; ?>">
                             <div class="doc-specialty-bar"></div>
                             <div class="doc-img-wrap">
-                                <img src="<?php echo $img; ?>" alt="<?php echo $name; ?>" loading="lazy" onerror="this.src='images/placeholder_doctor.png'">
+                                <img src="<?php echo $img; ?>" alt="<?php echo $name; ?>" loading="lazy" onerror="this.src='images/placeholder_doctor.svg'">
                                 <span class="doc-avail"><span class="dot"></span> Accepting Patients</span>
                             </div>
                             <div class="doc-body">
-                                <h4><?php echo $name; ?></h4>
+                                <h4>Dr. <?php echo $name; ?></h4>
                                 <p class="doc-title"><?php echo $title; ?></p>
                                 <div class="doc-tags">
                                     <span class="doc-tag"><?php echo $specialty; ?></span>
@@ -664,18 +669,18 @@ $pageTitle = 'Find a Doctor';
                                 <?php if ($rating > 0): ?>
                                     <div class="doc-rating">
                                         <span class="stars"><?php echo $stars_html; ?></span>
-                                        <span class="rating-num"><?php echo "$rating ($count reviews)"; ?></span>
+                                        <span class="rating-num"><?php echo "$rating"; ?></span>
                                     </div>
                                 <?php else: ?>
                                     <div class="doc-rating"><span class="rating-num" style="color:#aaa;">No reviews yet</span></div>
                                 <?php endif; ?>
                                 <?php if ($bio): ?>
-                                    <p class="doc-bio"><?php echo $bio; ?></p>
+                                    <p class="doc-bio"><?php echo htmlspecialchars($bio); ?></p>
                                 <?php endif; ?>
                             </div>
                             <div class="doc-footer">
-                                <a href="doctor-profile.php?slug=<?php echo $slug; ?>" class="doc-btn doc-btn-primary">View Profile</a>
-                                <a href="book_appointment.php?doctor=<?php echo urlencode($name); ?>" class="doc-btn doc-btn-outline">Book</a>
+                                <a href="doctor-profile.php?id=<?php echo $doc_id; ?>" class="doc-btn doc-btn-primary">View Profile</a>
+                                <a href="book_appointment.php?doctor_id=<?php echo $doc_id; ?>" class="doc-btn doc-btn-outline">Book</a>
                             </div>
                         </div>
                     <?php
@@ -733,7 +738,7 @@ $pageTitle = 'Find a Doctor';
         </div>
     </main>
 
-    <?php if (file_exists('footer.php')) include 'footer.php'; ?>
+    <?php include 'footer_bare.php'; ?>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
