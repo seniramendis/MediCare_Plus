@@ -2,6 +2,7 @@
 $pageTitle = 'Find a Specialist Doctor | MediCare Plus';
 // Include the database connection
 require_once 'auth.php';
+require_once 'db_connect.php';
 
 /**
  * Return a safe image filename — only allow plain filenames with no
@@ -150,10 +151,10 @@ include('header.php');
 
 <!-- Font Awesome with Subresource Integrity to prevent CDN tampering (CWE-94) -->
 <link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer">
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
 
 <div class="page-header" style="text-align: center; padding: 60px 20px; background-color: #f0f4f8;">
     <h1 style="color: #2b6cb0; font-size: 2.5rem; margin-bottom: 10px;">Find a Specialist Doctor</h1>
@@ -190,7 +191,7 @@ include('header.php');
         const input = document.getElementById('doctorSearch').value.toLowerCase();
         const cards = document.getElementsByClassName('doctor-card');
         for (let i = 0; i < cards.length; i++) {
-            const name     = cards[i].getElementsByClassName('doc-name')[0].innerText.toLowerCase();
+            const name = cards[i].getElementsByClassName('doc-name')[0].innerText.toLowerCase();
             const specialty = cards[i].getElementsByClassName('doc-specialty')[0].innerText.toLowerCase();
             cards[i].style.display = (name.includes(input) || specialty.includes(input)) ? 'block' : 'none';
         }
