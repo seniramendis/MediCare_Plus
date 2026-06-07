@@ -35,7 +35,7 @@ $result = $conn ? $conn->query($query) : false;
     <?php if ($result && $result->num_rows > 0): ?>
         <?php while ($post = $result->fetch_assoc()): ?>
             <div class="blog-card">
-                <img src="images/<?php echo safe_image_filename($post['image_url'], 'default-blog.jpg'); ?>" alt="Blog Image" class="blog-img">
+                <img src="assets/images/<?php echo safe_image_filename($post['image_url'] ?? '', 'default-blog.jpg'); ?>" alt="Blog Image" class="blog-img" onerror="this.style.display='none'">
 
                 <div class="blog-content">
                     <span class="blog-date"><?php echo date('M d, Y', strtotime($post['published_at'])); ?> • By <?php echo htmlspecialchars($post['author']); ?></span>
