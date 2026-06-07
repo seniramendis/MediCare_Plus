@@ -132,12 +132,20 @@ if ($docId && isset($conn)) {
         <div class="profile-hero-inner">
             <?php
                 $img_file = $doctor['profile_image'] ?? '';
-                $img_src  = !empty($img_file) ? 'assets/images/' . htmlspecialchars($img_file) : 'images/placeholder_doctor.svg';
+                if (!empty($img_file) && !preg_match('#^https?://#', $img_file)) {
+                    $img_src = 'assets/images/' . htmlspecialchars($img_file);
+                } elseif (!empty($img_file)) {
+                    $img_src = htmlspecialchars($img_file);
+                } else {
+                    $full_name = ($doctor['first_name'] ?? 'Doctor') . ' ' . ($doctor['last_name'] ?? '');
+                    $img_src = 'https://ui-avatars.com/api/?name=' . urlencode($full_name) . '&size=300&background=0aa698&color=fff&bold=true&rounded=true';
+                }
+                $fallback_src = $img_src;
             ?>
             <img src="<?php echo $img_src; ?>"
                  alt="<?php echo htmlspecialchars('Dr. ' . $doctor['first_name'] . ' ' . $doctor['last_name']); ?>"
                  class="profile-avatar"
-                 onerror="this.src='images/placeholder_doctor.svg'">
+                 onerror="this.src='<?php echo $fallback_src; ?>'">
             <div class="profile-hero-text">
                 <h1>Dr. <?php echo htmlspecialchars($doctor['first_name'] . ' ' . $doctor['last_name']); ?></h1>
                 <span class="spec-badge"><i class="fa-solid fa-stethoscope"></i> <?php echo htmlspecialchars($doctor['specialization']); ?></span>

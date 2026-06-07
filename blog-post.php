@@ -33,9 +33,15 @@ if ($post_id) {
 <section style="max-width: 800px; margin: 50px auto; padding: 40px; background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
     <?php if ($post): ?>
 
-        <?php if (!empty($post['image_url'])): ?>
-            <img src="images/<?php echo safe_image_filename($post['image_url'], 'default-blog.jpg'); ?>" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin-bottom: 30px;" alt="Blog Header">
-        <?php endif; ?>
+        <?php
+        $seed = abs(crc32($post['title'] ?? 'blog')) % 1000;
+        $apiImg = "https://source.unsplash.com/1200x500/?medical,healthcare&sig=" . $seed;
+        $localImg = !empty($post['image_url']) && !preg_match('/[:\\/\\\\]/', $post['image_url'])
+            ? 'images/' . safe_image_filename($post['image_url'], '')
+            : null;
+        $finalImg = $localImg ?? $apiImg;
+        ?>
+        <img src="<?php echo htmlspecialchars($finalImg); ?>" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px; margin-bottom: 30px;" alt="Blog Header" onerror="this.src='<?php echo $apiImg; ?>'">
 
         <h1 style="color: #2b6cb0; margin-bottom: 15px; font-size: 2.2rem;"><?php echo htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8'); ?></h1>
 

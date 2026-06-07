@@ -600,9 +600,6 @@ $pageKey = 'home';
 <body>
     <?php include 'nav_only.php'; ?>
 
-    <!-- ================================================
-     HERO — Photo transition slideshow
-     ================================================ -->
     <section class="hero-slideshow" id="heroSlideshow" aria-label="Hospital hero section">
 
         <div class="hero-slide active" role="img" aria-label="Your partner for a lifetime of health"></div>
@@ -610,7 +607,6 @@ $pageKey = 'home';
         <div class="hero-slide" role="img" aria-label="Follow us on social media"></div>
         <div class="hero-slide" role="img" aria-label="Sri Lanka's number one digital health platform"></div>
 
-        <!-- Content overlay -->
         <div class="hero-content">
             <span class="hero-badge">
                 <i class="fa-solid fa-shield-halved"></i>
@@ -636,7 +632,6 @@ $pageKey = 'home';
             </div>
         </div>
 
-        <!-- Dots -->
         <div class="hero-dots" role="tablist" aria-label="Slide navigation">
             <button class="hero-dot active" onclick="goToSlide(0)" aria-label="Slide 1"></button>
             <button class="hero-dot" onclick="goToSlide(1)" aria-label="Slide 2"></button>
@@ -644,17 +639,14 @@ $pageKey = 'home';
             <button class="hero-dot" onclick="goToSlide(3)" aria-label="Slide 4"></button>
         </div>
 
-        <!-- Prev / Next -->
         <div class="hero-arrow">
-            <button onclick="changeHeroSlide(-1)" aria-label="Previous slide">&#10094;</button>
-            <button onclick="changeHeroSlide(1)" aria-label="Next slide">&#10095;</button>
+            <button onclick="changeHeroSlide(-1)" aria-label="Previous slide">❮</button>
+            <button onclick="changeHeroSlide(1)" aria-label="Next slide">❯</button>
         </div>
 
-        <!-- Progress bar -->
         <div class="hero-progress" id="heroProgress"></div>
     </section>
 
-    <!-- Stats Ribbon -->
     <div class="hero-stats-ribbon">
         <div class="stat-item">
             <span class="stat-num">2,400+</span>
@@ -674,9 +666,6 @@ $pageKey = 'home';
         </div>
     </div>
 
-    <!-- ================================================
-     SERVICES
-     ================================================ -->
     <main class="page-container-home" id="Services">
         <div class="section-header">
             <span class="section-eyebrow">What We Offer</span>
@@ -739,8 +728,8 @@ $pageKey = 'home';
                     </div>
                 </div>
             </div>
-            <a class="service-prev" onclick="plusServiceSlides(-1)">&#10094;</a>
-            <a class="service-next" onclick="plusServiceSlides(1)">&#10095;</a>
+            <a class="service-prev" onclick="plusServiceSlides(-1)">❮</a>
+            <a class="service-next" onclick="plusServiceSlides(1)">❯</a>
         </div>
 
         <div class="service-dots-container">
@@ -754,17 +743,11 @@ $pageKey = 'home';
         </div>
     </main>
 
-    <!-- ================================================
-     QUOTE
-     ================================================ -->
     <div class="quote">
         <h1>"The good physician treats the disease; the great physician treats the patient who has the disease."</h1>
         <p>— William Osler</p>
     </div>
 
-    <!-- ================================================
-     FEATURED SPECIALISTS
-     ================================================ -->
     <section class="page-container-home doctor-preview-section">
         <div class="section-header">
             <span class="section-eyebrow">Our Team</span>
@@ -776,7 +759,7 @@ $pageKey = 'home';
             <div class="service-slide doctor-slide" data-slide-index="1">
                 <div class="doctor-slide-inner-grid">
                     <div class="doctor-card" data-name="Dr. Gotabhaya Ranasinghe" data-specialty="Cardiology">
-                        <img src="images/Dr. Gotabhaya Ranasinghe.webp" alt="Dr. Gotabhaya Ranasinghe">
+                        <img src="https://ui-avatars.com/api/?name=Gotabhaya+Ranasinghe&size=300&background=e53e3e&color=fff&bold=true&rounded=true" alt="Dr. Gotabhaya Ranasinghe">
                         <div class="doctor-info">
                             <h4>Dr. Gotabhaya Ranasinghe</h4>
                             <p class="doctor-title">Senior Consultant Cardiologist</p>
@@ -785,7 +768,7 @@ $pageKey = 'home';
                         </div>
                     </div>
                     <div class="doctor-card" data-name="Prof. Shaman Rajindrajith" data-specialty="Pediatrics">
-                        <img src="images/dr-shaman.png" alt="Prof. Shaman Rajindrajith">
+                        <img src="https://ui-avatars.com/api/?name=Shaman+Rajindrajith&size=300&background=3182ce&color=fff&bold=true&rounded=true" alt="Prof. Shaman Rajindrajith">
                         <div class="doctor-info">
                             <h4>Prof. Shaman Rajindrajith</h4>
                             <p class="doctor-title">Consultant Pediatrician</p>
@@ -794,7 +777,7 @@ $pageKey = 'home';
                         </div>
                     </div>
                     <div class="doctor-card" data-name="Dr. Nayana Perera" data-specialty="Dermatology">
-                        <img src="images/Nayana Perera.jpeg" alt="Dr. Nayana Perera">
+                        <img src="https://ui-avatars.com/api/?name=Nayana+Perera&size=300&background=d69e2e&color=fff&bold=true&rounded=true" alt="Dr. Nayana Perera">
                         <div class="doctor-info">
                             <h4>Dr. Nayana Perera</h4>
                             <p class="doctor-title">Head of Cosmetic Dermatology</p>
@@ -807,7 +790,7 @@ $pageKey = 'home';
             <div class="service-slide doctor-slide" data-slide-index="2">
                 <div class="doctor-slide-inner-grid">
                     <div class="doctor-card" data-name="Dr. Ashan Abeyewardene" data-specialty="Orthopedics">
-                        <img src="images/Ashan Abeyewardene.jpeg" alt="Dr. Ashan Abeyewardene">
+                        <img src="https://ui-avatars.com/api/?name=Ashan+Abeyewardene&size=300&background=dd6b20&color=fff&bold=true&rounded=true" alt="Dr. Ashan Abeyewardene">
                         <div class="doctor-info">
                             <h4>Dr. Ashan Abeyewardene</h4>
                             <p class="doctor-title">Head of Joint Replacement</p>
@@ -816,7 +799,7 @@ $pageKey = 'home';
                         </div>
                     </div>
                     <div class="doctor-card" data-name="Dr. Elena Fernando" data-specialty="General Practitioner">
-                        <img src="images/Elena Fernando.jpeg" alt="Dr. Elena Fernando">
+                        <img src="https://ui-avatars.com/api/?name=Elena+Fernando&size=300&background=38a169&color=fff&bold=true&rounded=true" alt="Dr. Elena Fernando">
                         <div class="doctor-info">
                             <h4>Dr. Elena Fernando</h4>
                             <p class="doctor-title">Senior General Practitioner</p>
@@ -825,7 +808,7 @@ $pageKey = 'home';
                         </div>
                     </div>
                     <div class="doctor-card" data-name="Dr. Chandra Silva" data-specialty="Cardiology">
-                        <img src="images/placeholder_doctor.png" alt="Dr. Chandra Silva">
+                        <img src="https://ui-avatars.com/api/?name=Chandra+Silva&size=300&background=6b46c1&color=fff&bold=true&rounded=true" alt="Dr. Chandra Silva">
                         <div class="doctor-info">
                             <h4>Dr. Chandra Silva</h4>
                             <p class="doctor-title">Consultant Cardiologist</p>
@@ -835,8 +818,8 @@ $pageKey = 'home';
                     </div>
                 </div>
             </div>
-            <a class="service-prev" onclick="plusDoctorSlides(-1)">&#10094;</a>
-            <a class="service-next" onclick="plusDoctorSlides(1)">&#10095;</a>
+            <a class="service-prev" onclick="plusDoctorSlides(-1)">❮</a>
+            <a class="service-next" onclick="plusDoctorSlides(1)">❯</a>
         </div>
 
         <div class="service-dots-container doctor-dots-container">
@@ -849,13 +832,10 @@ $pageKey = 'home';
         </div>
     </section>
 
-    <!-- ================================================
-     LOCATION
-     ================================================ -->
     <section class="page-container-home location-section">
         <div class="section-header">
             <span class="section-eyebrow">Find Us</span>
-            <h1 class="section-title"><i class="fa-solid fa-location-dot"></i> Our Location &amp; Contact</h1>
+            <h1 class="section-title"><i class="fa-solid fa-location-dot"></i> Our Location & Contact</h1>
             <p class="section-lead">Conveniently located with ample parking and accessibility. Visit us or get in touch below.</p>
         </div>
 
@@ -881,34 +861,47 @@ $pageKey = 'home';
         </div>
     </section>
 
-    <!-- ================================================
-     ABOUT
-     ================================================ -->
-    <div class="About" id="AboutUs">
-        <h1>ABOUT US</h1>
-        <section class="AboutText">
-            <p>Welcome to MediCare Plus, a leading private healthcare provider dedicated to delivering a comprehensive range of medical services. Our mission is to ensure the well-being of our community by offering accessible, efficient, and high-quality care.</p>
-            <p>We provide a wide array of services to meet your needs, including:</p>
-            <a class="service-link" onclick="openModal('General Medical Consultations', `<p><strong>Comprehensive care for your everyday health needs.</strong></p><p>Visit our general doctors for routine check-ups, preventative care, vaccinations, and treatment for common illnesses like colds, flu, and infections.</p>`, 'general-consultations.php')">
-                <li>General Medical Consultations</li>
-            </a>
-            <a class="service-link" onclick="openModal('Specialist Treatments', `<h3><i class='fa-solid fa-stethoscope'></i> Expert Care by Leading Specialists</h3><p>MediCare Plus offers access to a network of highly qualified specialists across various fields including <strong>Cardiology, Neurology, Orthopedics,</strong> and more.</p>`, 'Specialist Treatments.php')">
-                <li>Specialist Treatments</li>
-            </a>
-            <a class="service-link" onclick="openModal('Advanced Diagnostic Services', `<h3><i class='fa-solid fa-microscope'></i> Accurate Diagnosis, Faster Treatment</h3><ul><li>Advanced MRI and CT Scanners</li><li>Digital X-Ray and Ultrasound</li><li>Comprehensive Laboratory Services</li><li>ECG and Stress Testing</li></ul>`, 'diagnostics.php')">
-                <li>Advanced Diagnostic Services</li>
-            </a>
-            <a class="service-link" onclick="openModal('Emergency Care', `<h3><i class='fa-solid fa-truck-medical'></i> 24/7 Emergency &amp; Trauma Care</h3><p><strong>Our Emergency Room is open 24 hours a day, 7 days a week.</strong></p><p>Staffed by highly trained emergency physicians equipped to handle all medical emergencies.</p>`, 'Emergency Care.php')">
-                <li>Emergency Care</li>
-            </a>
-            <p>In response to rising patient expectations, we are proud to introduce our new interactive web platform — a cornerstone of our commitment to digital transformation in healthcare.</p>
-        </section>
-        <section class="AboutImage">
-            <img src="images/Logo4.png" alt="Medicare Plus Logo">
-        </section>
-    </div>
+    <section class="about-us-section" id="AboutUs">
+        <div class="about-container">
+            <div class="about-content">
+                <span class="section-eyebrow">Our Story</span>
+                <h2 class="section-title">About <span>Us</span></h2>
+                <p class="lead-text">
+                    Welcome to MediCare Plus, a leading private healthcare provider dedicated to delivering a comprehensive range of medical services. Our mission is to ensure the well-being of our community by offering accessible, efficient, and high-quality care.
+                </p>
 
-    <!-- Modal -->
+                <p class="sub-text">We provide a wide array of services to meet your needs, including:</p>
+
+                <div class="services-grid-about">
+                    <div class="service-card-about" onclick="openModal('General Medical Consultations', `<p><strong>Comprehensive care for your everyday health needs.</strong></p><p>Visit our general doctors for routine check-ups, preventative care, vaccinations, and treatment for common illnesses like colds, flu, and infections.</p>`, 'general-consultations.php')">
+                        <i class="fa-solid fa-stethoscope"></i>
+                        <strong>General Consultations</strong>
+                    </div>
+                    <div class="service-card-about" onclick="openModal('Specialist Treatments', `<h3><i class='fa-solid fa-user-doctor'></i> Expert Care by Leading Specialists</h3><p>MediCare Plus offers access to a network of highly qualified specialists across various fields including <strong>Cardiology, Neurology, Orthopedics,</strong> and more.</p>`, 'Specialist Treatments.php')">
+                        <i class="fa-solid fa-user-doctor"></i>
+                        <strong>Specialist Treatments</strong>
+                    </div>
+                    <div class="service-card-about" onclick="openModal('Advanced Diagnostic Services', `<h3><i class='fa-solid fa-microscope'></i> Accurate Diagnosis, Faster Treatment</h3><ul><li>Advanced MRI and CT Scanners</li><li>Digital X-Ray and Ultrasound</li><li>Comprehensive Laboratory Services</li><li>ECG and Stress Testing</li></ul>`, 'diagnostics.php')">
+                        <i class="fa-solid fa-microscope"></i>
+                        <strong>Advanced Diagnostics</strong>
+                    </div>
+                    <div class="service-card-about" onclick="openModal('Emergency Care', `<h3><i class='fa-solid fa-truck-medical'></i> 24/7 Emergency & Trauma Care</h3><p><strong>Our Emergency Room is open 24 hours a day, 7 days a week.</strong></p><p>Staffed by highly trained emergency physicians equipped to handle all medical emergencies.</p>`, 'Emergency Care.php')">
+                        <i class="fa-solid fa-truck-medical"></i>
+                        <strong>Emergency Care</strong>
+                    </div>
+                </div>
+
+                <p class="footer-text">
+                    In response to rising patient expectations, we are proud to introduce our new interactive web platform — a cornerstone of our commitment to digital transformation in healthcare.
+                </p>
+            </div>
+
+            <div class="about-image">
+                <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=900&q=80" alt="MediCare Plus Facility" onerror="this.src='https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&q=80'" />
+            </div>
+        </div>
+    </section>
+
     <div id="infoModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">

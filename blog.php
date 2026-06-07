@@ -30,13 +30,22 @@ if ($result && $result->num_rows > 0):
 ?>
     <div class="blog-card" data-aos="fade-up" data-aos-delay="<?= $delay ?>">
         <div class="blog-img-wrap">
-            <?php if ($hasImg): ?>
+            <?php
+            $unsplashKeywords = ['cardiology' => 'heart,medical', 'diabetes' => 'diabetes,health', 'child' => 'pediatrics,child', 'stress' => 'wellness,meditation', 'neuro' => 'neurology,brain', 'ortho' => 'orthopedics,bone', 'general' => 'hospital,healthcare'];
+            $cat = strtolower($post['category'] ?? 'general');
+            $kw = 'medical,healthcare';
+            foreach ($unsplashKeywords as $k => $v) { if (strpos($cat, $k) !== false) { $kw = $v; break; } }
+            $seed = abs(crc32($post['title'] ?? 'blog')) % 1000;
+            $apiImg = "https://source.unsplash.com/800x400/?" . urlencode($kw) . "&sig=" . $seed;
+            if ($hasImg && !preg_match('/[:\\/\\\\]/', $post['image_url'])): ?>
                 <img src="assets/images/<?= safe_image_filename($post['image_url'], '') ?>"
                      alt="<?= htmlspecialchars($post['title']) ?>"
                      class="blog-img"
-                     onerror="this.parentNode.innerHTML='<div class=blog-img-placeholder><i class=fas fa-newspaper></i></div>'">
+                     onerror="this.src='<?= $apiImg ?>'">
             <?php else: ?>
-                <div class="blog-img-placeholder"><i class="fas fa-newspaper"></i></div>
+                <img src="<?= $apiImg ?>"
+                     alt="<?= htmlspecialchars($post['title']) ?>"
+                     class="blog-img">
             <?php endif; ?>
         </div>
         <div class="blog-content">

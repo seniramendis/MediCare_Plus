@@ -642,7 +642,14 @@ $pageTitle = 'Find a Doctor';
                         $bio      = strip_tags($row['bio'] ?? '');
                         if (strlen($bio) > 100) $bio = substr($bio, 0, 100) . '...';
                         $img_file = $row['profile_image'] ?? '';
-                        $img      = !empty($img_file) ? htmlspecialchars('assets/images/' . $img_file) : 'images/placeholder_doctor.svg';
+                        if (!empty($img_file) && !preg_match('#^https?://#', $img_file)) {
+                            $img = htmlspecialchars('assets/images/' . $img_file);
+                        } elseif (!empty($img_file)) {
+                            $img = htmlspecialchars($img_file);
+                        } else {
+                            $initials = urlencode(substr($row['first_name'] ?? 'D', 0, 1) . (substr($row['last_name'] ?? 'R', 0, 1)));
+                            $img = "https://ui-avatars.com/api/?name=" . urlencode(($row['first_name'] ?? 'Doctor') . ' ' . ($row['last_name'] ?? '')) . "&size=300&background=0aa698&color=fff&bold=true&rounded=true";
+                        }
                         $rating   = $row['rating'] ? round($row['rating'], 1) : 0;
                         $count    = 0; // reviews table may not exist yet
                         $full_stars = floor($rating);
@@ -653,11 +660,12 @@ $pageTitle = 'Find a Doctor';
                             elseif ($i == $full_stars + 1 && $has_half) $stars_html .= '★';
                             else $stars_html .= '☆';
                         }
+                        $fallback_img = 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&size=300&background=0aa698&color=fff&bold=true&rounded=true';
             ?>
                         <div class="doctor-card" data-name="<?php echo $name; ?>" data-specialty="<?php echo $specialty; ?>" data-rating="<?php echo $rating; ?>">
                             <div class="doc-specialty-bar"></div>
                             <div class="doc-img-wrap">
-                                <img src="<?php echo $img; ?>" alt="<?php echo $name; ?>" loading="lazy" onerror="this.src='images/placeholder_doctor.svg'">
+                                <img src="<?php echo $img; ?>" alt="<?php echo $name; ?>" loading="lazy" onerror="this.src='<?php echo $fallback_img; ?>'">
                                 <span class="doc-avail"><span class="dot"></span> Accepting Patients</span>
                             </div>
                             <div class="doc-body">
@@ -688,22 +696,23 @@ $pageTitle = 'Find a Doctor';
                 } else {
                     /* Fallback demo cards when DB not connected */
                     $demo_doctors = [
-                        ['Dr. Gotabhaya Ranasinghe', 'Senior Consultant Cardiologist', 'Cardiology', 'images/Dr. Gotabhaya Ranasinghe.webp', 4.9, 142],
-                        ['Prof. Shaman Rajindrajith', 'Consultant Pediatrician', 'Pediatrics', 'images/dr-shaman.png', 4.8, 98],
-                        ['Dr. Nayana Perera', 'Head of Cosmetic Dermatology', 'Dermatology', 'images/Nayana Perera.jpeg', 4.7, 76],
-                        ['Dr. Ashan Abeyewardene', 'Head of Joint Replacement', 'Orthopedics', 'images/Ashan Abeyewardene.jpeg', 4.8, 113],
-                        ['Dr. Elena Fernando', 'Senior General Practitioner', 'General Practitioner', 'images/Elena Fernando.jpeg', 4.6, 201],
-                        ['Dr. Chandra Silva', 'Consultant Cardiologist', 'Cardiology', 'images/placeholder_doctor.png', 0, 0],
+                        ['Dr. Gotabhaya Ranasinghe', 'Senior Consultant Cardiologist', 'Cardiology', 'https://ui-avatars.com/api/?name=Gotabhaya+Ranasinghe&size=300&background=e53e3e&color=fff&bold=true&rounded=true', 4.9, 142],
+                        ['Prof. Shaman Rajindrajith', 'Consultant Pediatrician', 'Pediatrics', 'https://ui-avatars.com/api/?name=Shaman+Rajindrajith&size=300&background=3182ce&color=fff&bold=true&rounded=true', 4.8, 98],
+                        ['Dr. Nayana Perera', 'Head of Cosmetic Dermatology', 'Dermatology', 'https://ui-avatars.com/api/?name=Nayana+Perera&size=300&background=d69e2e&color=fff&bold=true&rounded=true', 4.7, 76],
+                        ['Dr. Ashan Abeyewardene', 'Head of Joint Replacement', 'Orthopedics', 'https://ui-avatars.com/api/?name=Ashan+Abeyewardene&size=300&background=dd6b20&color=fff&bold=true&rounded=true', 4.8, 113],
+                        ['Dr. Elena Fernando', 'Senior General Practitioner', 'General Practitioner', 'https://ui-avatars.com/api/?name=Elena+Fernando&size=300&background=38a169&color=fff&bold=true&rounded=true', 4.6, 201],
+                        ['Dr. Chandra Silva', 'Consultant Cardiologist', 'Cardiology', 'https://ui-avatars.com/api/?name=Chandra+Silva&size=300&background=6b46c1&color=fff&bold=true&rounded=true', 0, 0],
                     ];
                     foreach ($demo_doctors as $d) {
                         [$name, $title, $specialty, $img, $rating, $count] = $d;
                         $stars = $rating > 0 ? str_repeat('★', (int)$rating) . ($rating - (int)$rating >= 0.5 ? '★' : '') : '';
                         $stars = str_pad($stars, 5, '☆', STR_PAD_RIGHT);
+                        $fallback_img = 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&size=300&background=0aa698&color=fff&bold=true&rounded=true';
                     ?>
                         <div class="doctor-card" data-name="<?php echo $name; ?>" data-specialty="<?php echo $specialty; ?>" data-rating="<?php echo $rating; ?>">
                             <div class="doc-specialty-bar"></div>
                             <div class="doc-img-wrap">
-                                <img src="<?php echo $img; ?>" alt="<?php echo $name; ?>" loading="lazy" onerror="this.src='images/placeholder_doctor.png'">
+                                <img src="<?php echo $img; ?>" alt="<?php echo $name; ?>" loading="lazy" onerror="this.src='<?php echo $fallback_img; ?>'">
                                 <span class="doc-avail"><span class="dot"></span> Accepting Patients</span>
                             </div>
                             <div class="doc-body">

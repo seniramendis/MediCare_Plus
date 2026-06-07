@@ -620,30 +620,111 @@ tr:hover td { background: var(--soft-bg); }
     .map-placeholder { height: 260px; }
 }
 
-/* ── 22. HOME PAGE — ABOUT SECTION ── */
-.About {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-blue) 100%);
-    padding: 80px 5%; color: #fff;
-    display: flex; flex-direction: column; align-items: center; text-align: center;
+/* ── 22. HOME PAGE — ABOUT SECTION (UPDATED) ── */
+.about-us-section {
+    background-color: var(--soft-bg);
+    padding: 80px 5%;
 }
-.About h1 {
-    font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900;
-    letter-spacing: 2px; margin-bottom: 40px; opacity: .95;
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 60px;
+    align-items: center;
 }
-.AboutText {
-    max-width: 720px; font-size: 1rem; line-height: 1.85;
-    color: rgba(255,255,255,.85);
+
+.about-content {
+    flex: 1;
 }
-.AboutText p { margin-bottom: 18px; }
-.AboutText li { list-style: none; }
-.AboutImage { margin-top: 36px; }
-.AboutImage img { max-height: 120px; opacity: .85; filter: brightness(0) invert(1); }
-.service-link {
-    display: block; color: rgba(255,255,255,.9); text-decoration: none;
-    padding: 6px 0; font-weight: 600; transition: color .2s;
+
+.about-content .section-title span {
+    color: var(--secondary-blue);
 }
-.service-link:hover { color: #63b3ed; }
-.service-link li { display: inline; }
+
+.about-content .lead-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.about-content .sub-text {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+}
+
+/* Services Grid inside About */
+.services-grid-about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.service-card-about {
+    background: #fff;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--secondary-blue);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--primary-dark);
+}
+
+.service-card-about i {
+    font-size: 1.2rem;
+    color: var(--secondary-blue);
+}
+
+.service-card-about:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--hover-shadow);
+}
+
+.about-content .footer-text {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.about-image {
+    flex: 1;
+    position: relative;
+}
+
+.about-image img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: var(--hover-shadow);
+    object-fit: cover;
+}
+
+/* Responsive adjustments for About */
+@media (max-width: 992px) {
+    .about-container {
+        flex-direction: column;
+    }
+    .about-image {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .services-grid-about {
+        grid-template-columns: 1fr;
+    }
+}
 
 /* ── 23. MODAL ── */
 .modal {
