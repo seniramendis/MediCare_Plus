@@ -1,44 +1,56 @@
 <?php
-$pageTitle = 'Medical Services | MediCare Plus Sri Lanka';
-include('header.php');
+require_once 'db_connect.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$pageTitle = 'Our Services | MediCare Plus';
+include 'header.php';
+
+$services = fetch_services();
 ?>
 
-    <div class="services-header">
-        <h1 style="color: #2b6cb0; font-size: 2.5rem; margin-bottom: 10px;">Medical Services</h1>
-        <p style="color: #4a5568; font-size: 1.1rem;">Comprehensive healthcare solutions tailored to your needs.</p>
-    </div>
+<div class="page-container-home" style="padding-top: 120px; min-height: 80vh;">
+    <h1 class="section-title" data-aos="fade-down">Our Premium Services</h1>
+    <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Comprehensive medical care tailored to your needs. Explore our specialized departments and treatment options.</p>
 
-    <div class="services-grid">
-        <div class="service-card">
-            <div class="service-icon"><i class="fas fa-heartbeat"></i></div>
-            <h3>Cardiology</h3>
-            <p>Advanced heart care, ECGs, and expert consultations with leading cardiologists to keep your heart healthy.</p>
+    <?php if (empty($services)): ?>
+        <div style="text-align: center; padding: 50px; background: #fff; border-radius: 15px; box-shadow: var(--card-shadow);" data-aos="zoom-in">
+            <h3 style="color: var(--text-muted);">No services available at the moment.</h3>
         </div>
-        <div class="service-card">
-            <div class="service-icon"><i class="fas fa-microscope"></i></div>
-            <h3>Laboratory Services</h3>
-            <p>State-of-the-art diagnostic testing, blood work, and fast, accurate results delivered securely online.</p>
+    <?php else: ?>
+        <div class="service-grid-home">
+            <?php $delay = 100;
+            foreach ($services as $service): ?>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="<?php echo $delay; ?>">
+                    <div class="service-icon-container" style="color: var(--secondary-blue);">
+                        <i class="fas fa-notes-medical"></i>
+                    </div>
+                    <h4 style="color: var(--primary-dark); font-size: 1.4rem; margin-bottom: 10px;">
+                        <?php echo htmlspecialchars($service['name']); ?>
+                    </h4>
+                    <p style="color: var(--accent-green); font-weight: bold; margin-bottom: 15px;">
+                        Category: <?php echo htmlspecialchars($service['category']); ?>
+                    </p>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                        <?php echo htmlspecialchars($service['description']); ?>
+                    </p>
+                    <div style="background: var(--soft-bg); padding: 10px; border-radius: 8px; font-weight: bold; color: var(--primary-dark);">
+                        Fee: LKR <?php echo number_format($service['price'], 2); ?>
+                    </div>
+                </div>
+            <?php $delay += 100;
+                if ($delay > 300) $delay = 100;
+            endforeach; ?>
         </div>
-        <div class="service-card">
-            <div class="service-icon"><i class="fas fa-user-md"></i></div>
-            <h3>General Consultations</h3>
-            <p>Routine check-ups, preventive care, and expert medical advice for you and your entire family.</p>
-        </div>
-        <div class="service-card">
-            <div class="service-icon"><i class="fas fa-x-ray"></i></div>
-            <h3>Radiology & Imaging</h3>
-            <p>High-resolution X-Rays, MRI, and CT scanning facilities utilizing the latest medical technology.</p>
-        </div>
-        <div class="service-card">
-            <div class="service-icon"><i class="fas fa-baby"></i></div>
-            <h3>Pediatrics</h3>
-            <p>Specialized healthcare for infants, children, and adolescents by compassionate pediatric specialists.</p>
-        </div>
-        <div class="service-card">
-            <div class="service-icon"><i class="fas fa-ambulance"></i></div>
-            <h3>Emergency Care</h3>
-            <p>24/7 urgent medical attention and trauma care equipped to handle all critical healthcare emergencies.</p>
-        </div>
-    </div>
+    <?php endif; ?>
+</div>
 
-    <?php include('footer.php'); ?>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+</script>
+<?php include 'footer.php'; ?>
