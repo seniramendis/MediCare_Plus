@@ -147,14 +147,9 @@ include('header.php');
                             <h3 style="color: #2b6cb0; margin-bottom: 5px;"><?php echo htmlspecialchars($report['file_name'], ENT_QUOTES, 'UTF-8'); ?></h3>
                             <p style="color: #718096; font-size: 0.9rem;">Uploaded by <?php echo htmlspecialchars($report['uploaded_by'], ENT_QUOTES, 'UTF-8'); ?> on <?php echo htmlspecialchars(date('M d, Y', strtotime($report['created_at'])), ENT_QUOTES, 'UTF-8'); ?></p>
                         </div>
-                        <?php
-                        $safePath = safe_file_path($report['file_path']);
-                        ?>
-                        <?php if ($safePath !== ''): ?>
-                            <a href="uploads/<?php echo $safePath; ?>" class="download-btn" target="_blank" download>
-                                <i class="fas fa-download"></i> Download PDF
-                            </a>
-                        <?php endif; ?>
+                        <a href="download_report.php?id=<?php echo (int)$report['id']; ?>" class="download-btn">
+                            <i class="fas fa-download"></i> Download
+                        </a>
                     </div>
                     <p style="color: #4a5568; line-height: 1.5;"><?php echo nl2br(htmlspecialchars($report['notes'] ?? '')); ?></p>
                 </div>

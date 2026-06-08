@@ -74,9 +74,21 @@ if (!in_array($ext, $allowedExt, true)) {
     send_error(403, 'File type not permitted for download.');
 }
 
+// Map extensions to proper MIME types for correct browser handling.
+$mimeMap = [
+    'pdf'  => 'application/pdf',
+    'doc'  => 'application/msword',
+    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'txt'  => 'text/plain; charset=UTF-8',
+    'jpg'  => 'image/jpeg',
+    'jpeg' => 'image/jpeg',
+    'png'  => 'image/png',
+];
+$contentType = $mimeMap[$ext] ?? 'application/octet-stream';
+
 // Stream the file to the browser.
 header('Content-Description: File Transfer');
-header('Content-Type: application/octet-stream');
+header('Content-Type: ' . $contentType);
 header('Content-Disposition: attachment; filename="' . $downloadName . '"');
 header('Content-Transfer-Encoding: binary');
 header('Expires: 0');

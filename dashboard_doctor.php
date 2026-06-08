@@ -2,6 +2,10 @@
 require_once 'auth.php';
 require_role('doctor');
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $pageTitle = 'Doctor Dashboard | MediCare Plus';
 $user = current_user();
 
@@ -21,7 +25,7 @@ if ($connection) {
     }
 
     if ($doctor) {
-        $sq = "SELECT a.appointment_date, a.status, u.first_name, u.last_name
+        $sq = "SELECT a.id, a.appointment_date, a.status, u.first_name, u.last_name
                FROM appointments a
                JOIN patients p ON p.id = a.patient_id
                JOIN users u ON u.id = p.user_id
@@ -36,10 +40,75 @@ if ($connection) {
         }
         $unreadCount    = get_unread_count($_SESSION['user_id']);
         $recentMessages = array_slice(fetch_inbox($_SESSION['user_id']), 0, 5);
+
+        // Total revenue and completed sessions from payments table
+        $totalRevenue   = 0;
+        $completedCount = 0;
+        $docIdInt = (int)$doctor['id'];
+        $revStmt = $connection->prepare(
+            "SELECT COUNT(*) AS cnt, COALESCE(SUM(amount),0) AS total FROM payments WHERE doctor_id = ? AND status = 'paid'"
+        );
+        if ($revStmt) {
+            $revStmt->bind_param('i', $docIdInt);
+            $revStmt->execute();
+            $revRow = $revStmt->get_result()->fetch_assoc();
+            $completedCount = (int)($revRow['cnt'] ?? 0);
+            $totalRevenue   = (float)($revRow['total'] ?? 0);
+            $revStmt->close();
+        }
+
+        // Fetch recent transactions from payments table
+        $transactions = [];
+        $txStmt = $connection->prepare(
+            "SELECT p.amount, p.payment_method, p.paid_at, p.description, CONCAT(pu.first_name, ' ', pu.last_name) AS patient_name FROM payments p JOIN patients pt ON pt.id = p.patient_id JOIN users pu ON pu.id = pt.user_id WHERE p.doctor_id = ? AND p.status = 'paid' ORDER BY p.paid_at DESC LIMIT 10"
+        );
+        if ($txStmt) {
+            $txStmt->bind_param('i', $docIdInt);
+            $txStmt->execute();
+            $transactions = $txStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $txStmt->close();
+        }
     }
 }
 
 include 'header.php';
+?>
+<style>
+    .btn-accept {
+        background: linear-gradient(135deg, #38a169, #2f855a);
+        color: #fff;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity .2s;
+        white-space: nowrap;
+    }
+
+    .btn-accept:hover {
+        opacity: .85;
+    }
+
+    .alert-inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: .9rem;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+
+    .alert-inline-success {
+        background: #f0fff4;
+        color: #276749;
+        border: 1px solid #9ae6b4;
+    }
+</style>
+<?php
 ?>
 <div class="page-panel">
 
@@ -52,103 +121,170 @@ include 'header.php';
     </div>
 
     <?php if ($doctor): ?>
-    <div class="summary-grid">
-        <div class="summary-card">
-            <div class="card-icon"><i class="fas fa-stethoscope"></i></div>
-            <strong><?php echo e($doctor['specialization']); ?></strong>
-            <span>Specialization</span>
-        </div>
-        <div class="summary-card">
-            <div class="card-icon"><i class="fas fa-briefcase-medical"></i></div>
-            <strong><?php echo (int)$doctor['experience_years']; ?> yrs</strong>
-            <span>Experience</span>
-        </div>
-        <div class="summary-card">
-            <div class="card-icon"><i class="fas fa-tag"></i></div>
-            <strong>LKR <?php echo number_format((float)$doctor['consultation_fee'], 0); ?></strong>
-            <span>Consultation Fee</span>
-        </div>
-        <div class="summary-card">
-            <div class="card-icon"><i class="fas fa-star"></i></div>
-            <strong><?php echo number_format((float)$doctor['rating'], 1); ?>/5</strong>
-            <span>Patient Rating</span>
-        </div>
-        <div class="summary-card">
-            <div class="card-icon"><i class="fas fa-envelope"></i></div>
-            <strong><?php echo (int)$unreadCount; ?></strong>
-            <span>Unread Messages</span>
-        </div>
-        <div class="summary-card">
-            <div class="card-icon"><i class="fas fa-calendar-check"></i></div>
-            <strong><?php echo count($doctorAppointments); ?></strong>
-            <span>Upcoming Appointments</span>
-        </div>
-    </div>
-
-    <div class="page-actions">
-        <a class="button primary-button" href="upload_report.php"><i class="fas fa-upload"></i> Upload Report</a>
-        <a class="button outline-button" href="chat_engine.php"><i class="fas fa-comments"></i> Messages<?php if($unreadCount>0): ?> (<?php echo (int)$unreadCount; ?>)<?php endif; ?></a>
-        <a class="button outline-button" href="appointments.php"><i class="fas fa-calendar-alt"></i> All Appointments</a>
-    </div>
-
-    <div class="content-panel">
-        <h3><i class="fas fa-calendar-alt"></i> Upcoming Appointments</h3>
-        <?php if (!empty($doctorAppointments)): ?>
-            <table class="card-table">
-                <thead>
-                    <tr><th>Patient</th><th>Date &amp; Time</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($doctorAppointments as $visit): ?>
-                        <tr>
-                            <td><strong><?php echo e($visit['first_name'] . ' ' . $visit['last_name']); ?></strong></td>
-                            <td><i class="fas fa-clock" style="color:var(--text-muted);font-size:.8rem;margin-right:.3rem;"></i><?php echo e(date('M j, Y H:i', strtotime($visit['appointment_date']))); ?></td>
-                            <td><span class="status-pill <?php echo e($visit['status']); ?>"><?php echo ucfirst(e($visit['status'])); ?></span></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <div class="empty-state">
-                <i class="fas fa-calendar-check"></i>
-                <p>No upcoming appointments scheduled.</p>
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="card-icon"><i class="fas fa-stethoscope"></i></div>
+                <strong><?php echo e($doctor['specialization']); ?></strong>
+                <span>Specialization</span>
             </div>
-        <?php endif; ?>
-    </div>
-
-    <div class="content-panel">
-        <h3><i class="fas fa-inbox"></i> Recent Messages</h3>
-        <?php if (empty($recentMessages)): ?>
-            <div class="empty-state">
-                <i class="fas fa-comment-slash"></i>
-                <p>No recent messages.</p>
+            <div class="summary-card">
+                <div class="card-icon"><i class="fas fa-briefcase-medical"></i></div>
+                <strong><?php echo (int)$doctor['experience_years']; ?> yrs</strong>
+                <span>Experience</span>
             </div>
-        <?php else: ?>
-            <table class="card-table">
-                <thead>
-                    <tr><th>From</th><th>Subject</th><th>Date</th><th></th></tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($recentMessages as $m): ?>
+            <div class="summary-card">
+                <div class="card-icon"><i class="fas fa-tag"></i></div>
+                <strong>LKR <?php echo number_format((float)$doctor['consultation_fee'], 0); ?></strong>
+                <span>Consultation Fee</span>
+            </div>
+            <div class="summary-card">
+                <div class="card-icon"><i class="fas fa-star"></i></div>
+                <strong><?php echo number_format((float)$doctor['rating'], 1); ?>/5</strong>
+                <span>Patient Rating</span>
+            </div>
+            <div class="summary-card">
+                <div class="card-icon"><i class="fas fa-envelope"></i></div>
+                <strong><?php echo (int)$unreadCount; ?></strong>
+                <span>Unread Messages</span>
+            </div>
+            <div class="summary-card">
+                <div class="card-icon"><i class="fas fa-calendar-check"></i></div>
+                <strong><?php echo count($doctorAppointments); ?></strong>
+                <span>Upcoming Appointments</span>
+            </div>
+            <div class="summary-card">
+                <div class="card-icon" style="background:linear-gradient(135deg,#38a169,#2f855a);"><i class="fas fa-check-double"></i></div>
+                <strong><?php echo $completedCount; ?></strong>
+                <span>Completed Sessions</span>
+            </div>
+            <div class="summary-card">
+                <div class="card-icon" style="background:linear-gradient(135deg,#d69e2e,#b7791f);"><i class="fas fa-coins"></i></div>
+                <strong>LKR <?php echo number_format($totalRevenue, 0); ?></strong>
+                <span>Total Revenue</span>
+            </div>
+        </div>
+
+        <div class="page-actions">
+            <a class="button primary-button" href="upload_report.php"><i class="fas fa-upload"></i> Upload Report</a>
+            <a class="button outline-button" href="chat_engine.php"><i class="fas fa-comments"></i> Messages<?php if ($unreadCount > 0): ?> (<?php echo (int)$unreadCount; ?>)<?php endif; ?></a>
+            <a class="button outline-button" href="appointments.php"><i class="fas fa-calendar-alt"></i> All Appointments</a>
+        </div>
+
+        <div class="content-panel">
+            <h3><i class="fas fa-calendar-alt"></i> Upcoming Appointments</h3>
+            <?php if (isset($_GET['accepted'])): ?>
+                <div class="alert-inline alert-inline-success"><i class="fas fa-check-circle"></i> Appointment accepted — patient can now proceed to payment.</div>
+            <?php endif; ?>
+            <?php if (!empty($doctorAppointments)): ?>
+                <table class="card-table">
+                    <thead>
                         <tr>
-                            <td><?php echo e($m['first_name'] . ' ' . $m['last_name']); ?></td>
-                            <td><?php echo e($m['subject']); ?></td>
-                            <td><?php echo e(date('M j, Y H:i', strtotime($m['sent_at']))); ?></td>
-                            <td><a href="chat_engine.php?view_user=<?php echo (int)$m['sender_id']; ?>">Open</a></td>
+                            <th>Patient</th>
+                            <th>Date &amp; Time</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($doctorAppointments as $visit): ?>
+                            <tr>
+                                <td><strong><?php echo e($visit['first_name'] . ' ' . $visit['last_name']); ?></strong></td>
+                                <td><i class="fas fa-clock" style="color:var(--text-muted);font-size:.8rem;margin-right:.3rem;"></i><?php echo e(date('M j, Y H:i', strtotime($visit['appointment_date']))); ?></td>
+                                <td><span class="status-pill <?php echo e($visit['status']); ?>"><?php echo ucfirst(e($visit['status'])); ?></span></td>
+                                <td>
+                                    <?php if ($visit['status'] === 'pending'): ?>
+                                        <form method="post" action="accept_appointment.php" style="margin:0;">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                            <input type="hidden" name="appointment_id" value="<?php echo (int)$visit['id']; ?>">
+                                            <button type="submit" class="btn-accept"><i class="fas fa-check"></i> Accept</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span style="color:var(--text-muted);font-size:.85rem;">—</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="empty-state">
+                    <i class="fas fa-calendar-check"></i>
+                    <p>No upcoming appointments scheduled.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="content-panel">
+            <h3><i class="fas fa-receipt"></i> Recent Transactions</h3>
+            <?php if (empty($transactions)): ?>
+                <div class="empty-state">
+                    <i class="fas fa-coins"></i>
+                    <p>No payment transactions yet.</p>
+                </div>
+            <?php else: ?>
+                <table class="card-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($transactions as $tx): ?>
+                            <tr>
+                                <td><strong><?php echo e($tx['patient_name']); ?></strong></td>
+                                <td style="color:#2f855a;font-weight:700;">LKR <?php echo number_format((float)$tx['amount'], 0); ?></td>
+                                <td><?php echo e($tx['payment_method'] ?: '—'); ?></td>
+                                <td><?php echo e($tx['description'] ?: 'Medical Consultation'); ?></td>
+                                <td><i class="fas fa-clock" style="color:var(--text-muted);font-size:.8rem;margin-right:.3rem;"></i><?php echo e(date('M j, Y H:i', strtotime($tx['paid_at']))); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+
+        <div class="content-panel">
+            <h3><i class="fas fa-inbox"></i> Recent Messages</h3>
+            <?php if (empty($recentMessages)): ?>
+                <div class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>No recent messages.</p>
+                </div>
+            <?php else: ?>
+                <table class="card-table">
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($recentMessages as $m): ?>
+                            <tr>
+                                <td><?php echo e($m['first_name'] . ' ' . $m['last_name']); ?></td>
+                                <td><?php echo e($m['subject']); ?></td>
+                                <td><?php echo e(date('M j, Y H:i', strtotime($m['sent_at']))); ?></td>
+                                <td><a href="chat_engine.php?view_user=<?php echo (int)$m['sender_id']; ?>">Open</a></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
 
     <?php else: ?>
-    <div class="content-panel">
-        <div class="empty-state">
-            <i class="fas fa-user-md"></i>
-            <p>Your doctor profile is not yet configured. Please ask an administrator to complete your profile.</p>
+        <div class="content-panel">
+            <div class="empty-state">
+                <i class="fas fa-user-md"></i>
+                <p>Your doctor profile is not yet configured. Please ask an administrator to complete your profile.</p>
+            </div>
         </div>
-    </div>
     <?php endif; ?>
 
 </div>

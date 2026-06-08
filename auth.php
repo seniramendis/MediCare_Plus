@@ -380,3 +380,53 @@ function create_user($first_name, $last_name, $email, $password, $role = 'patien
     $stmt->execute();
     return $conn->insert_id;
 }
+
+// --- APPOINTMENT STATUS FUNCTIONS ---
+
+/**
+ * Update appointment status. Allowed values: pending, confirmed, completed, cancelled.
+ * Optionally restrict to a specific doctor_id (for doctor-only actions).
+ */
+function update_appointment_status(int $appointmentId, string $status, int $doctorId = 0): bool
+{
+    global $conn;
+    $allowed = ['pending', 'confirmed', 'completed', 'cancelled'];
+    if (!in_array($status, $allowed, true)) return false;
+
+    if ($doctorId > 0) {
+        $stmt = $conn->prepare('UPDATE appointments SET status = ? WHERE id = ? AND doctor_id = ?');
+        $stmt->bind_param('sii', $status, $appointmentId, $doctorId);
+    } else {
+        $stmt = $conn->prepare('UPDATE appointments SET status = ? WHERE id = ?');
+        $stmt->bind_param('si', $status, $appointmentId);
+    }
+    $stmt->execute();
+    return $stmt->affected_rows > 0;
+}
+
+/**
+ * Fetch a single appointment with doctor and patient details.
+ */
+function fetch_appointment_by_id(int $appointmentId): ?array
+{
+    global $conn;
+    $stmt = $conn->prepare(
+        "SELECT a.id, a.appointment_date, a.status, a.notes,
+                a.patient_id, a.doctor_id,
+                p.user_id AS patient_user_id,
+                CONCAT(pu.first_name, ' ', pu.last_name) AS patient_name,
+                CONCAT(du.first_name, ' ', du.last_name) AS doctor_name,
+                d.consultation_fee, d.specialization
+         FROM appointments a
+         JOIN patients p  ON p.id  = a.patient_id
+         JOIN users   pu  ON pu.id = p.user_id
+         JOIN doctors d   ON d.id  = a.doctor_id
+         JOIN users   du  ON du.id = d.user_id
+         WHERE a.id = ?
+         LIMIT 1"
+    );
+    $stmt->bind_param('i', $appointmentId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    return $row ?: null;
+}
