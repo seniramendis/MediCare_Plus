@@ -642,7 +642,7 @@ $pageTitle = 'Find a Doctor';
                         $bio      = strip_tags($row['bio'] ?? '');
                         if (strlen($bio) > 100) $bio = substr($bio, 0, 100) . '...';
                         $img_file = $row['profile_image'] ?? '';
-                        if (!empty($img_file) && !preg_match('#^https?://#', $img_file)) {
+                        if (!empty($img_file) && !preg_match('/^https?:\/\//', $img_file)) {
                             $img = htmlspecialchars('assets/images/' . $img_file);
                         } elseif (!empty($img_file)) {
                             $img = htmlspecialchars($img_file);

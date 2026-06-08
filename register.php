@@ -6,14 +6,13 @@ $success = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (file_exists('db_connect.php')) {
         include 'db_connect.php';
-
         $full_name = trim($_POST['full_name']);
         $name_parts = explode(' ', $full_name, 2);
         $first_name = mysqli_real_escape_string($conn, $name_parts[0]);
         $last_name  = mysqli_real_escape_string($conn, $name_parts[1] ?? '');
-        $email      = mysqli_real_escape_string($conn, trim($_POST['email']));
-        $password   = $_POST['password'];
-        $confirm    = $_POST['confirm_password'];
+        $email    = mysqli_real_escape_string($conn, trim($_POST['email']));
+        $password = $_POST['password'];
+        $confirm  = $_POST['confirm_password'];
 
         if ($password !== $confirm) {
             $error = "Passwords do not match.";
@@ -25,42 +24,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error = "An account with this email already exists. <a href='Login.php'>Sign in instead?</a>";
             } else {
                 $hashed = password_hash($password, PASSWORD_BCRYPT);
-
-                // 1. Insert into users
                 $sql = "INSERT INTO users (first_name, last_name, email, password_hash, role, created_at)
                         VALUES ('$first_name','$last_name','$email','$hashed','patient', NOW())";
-
                 if (mysqli_query($conn, $sql)) {
-                    // 2. Get the new user's ID
-                    $user_id = mysqli_insert_id($conn);
-
-                    // 3. Automatically create the linked patient record
-                    // This ensures fetch_patient_by_user_id() will work later
-                    $sql_patient = "INSERT INTO patients (user_id) VALUES ('$user_id')";
-                    mysqli_query($conn, $sql_patient);
-
                     header("Location: Login.php?registered=1");
                     exit();
                 } else {
                     $error = "Registration failed. Please try again.";
                 }
-                // After the user insertion logic:
-                if (mysqli_query($conn, $sql)) {
-                    // Get the ID of the user just created
-                    $new_user_id = mysqli_insert_id($conn);
-
-                    // Automatically create the linked patient record
-                    $sql_patient = "INSERT INTO patients (user_id) VALUES ('$new_user_id')";
-                    mysqli_query($conn, $sql_patient);
-
-                    header("Location: Login.php?registered=1");
-                    exit();
-                }
             }
         }
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">

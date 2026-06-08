@@ -132,7 +132,7 @@ if ($docId && isset($conn)) {
         <div class="profile-hero-inner">
             <?php
                 $img_file = $doctor['profile_image'] ?? '';
-                if (!empty($img_file) && !preg_match('#^https?://#', $img_file)) {
+                if (!empty($img_file) && !preg_match('/^https?:\/\//', $img_file)) {
                     $img_src = 'assets/images/' . htmlspecialchars($img_file);
                 } elseif (!empty($img_file)) {
                     $img_src = htmlspecialchars($img_file);

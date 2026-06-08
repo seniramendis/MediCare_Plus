@@ -157,7 +157,7 @@ include 'header.php';
         <?php while ($d = $res->fetch_assoc()) {
             $full = htmlspecialchars($d["first_name"] . " " . $d["last_name"]);
             $imgFile = $d["profile_image"] ?? "";
-            if (!empty($imgFile) && !preg_match('#^https?://#', $imgFile)) {
+            if (!empty($imgFile) && !preg_match('/^https?:\/\/', $imgFile)) {
                 $img = "assets/images/" . htmlspecialchars($imgFile);
             } elseif (!empty($imgFile)) {
                 $img = htmlspecialchars($imgFile);

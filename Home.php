@@ -897,7 +897,7 @@ $pageKey = 'home';
             </div>
 
             <div class="about-image">
-                <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=900&q=80" alt="MediCare Plus Facility" onerror="this.src='https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&q=80'" />
+                <img src="images/Slideshow1.png" alt="MediCare Plus Facility" />
             </div>
         </div>
     </section>
