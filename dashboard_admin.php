@@ -7,7 +7,8 @@ $user = current_user();
 
 $connection = get_db_connection();
 
-function fetch_count($conn, $sql) {
+function fetch_count($conn, $sql)
+{
     $result = $conn->query($sql);
     return $result ? (int)$result->fetch_row()[0] : 0;
 }
@@ -65,8 +66,8 @@ include 'header.php';
     </div>
 
     <div class="page-actions">
-        <a class="button primary-button" href="add_doctors_safe.php"><i class="fas fa-user-plus"></i> Add Doctor</a>
-        <a class="button outline-button" href="chat_engine.php"><i class="fas fa-comments"></i> Inbox<?php if($unreadCount>0): ?> (<?php echo (int)$unreadCount; ?>)<?php endif; ?></a>
+        <a class="button primary-button" href="add_doctor.php"><i class="fas fa-user-plus"></i> Add Doctor</a>
+        <a class="button outline-button" href="chat_engine.php"><i class="fas fa-comments"></i> Inbox<?php if ($unreadCount > 0): ?> (<?php echo (int)$unreadCount; ?>)<?php endif; ?></a>
         <a class="button outline-button" href="admin_reports.php"><i class="fas fa-chart-bar"></i> Reports</a>
         <a class="button outline-button" href="doctors.php"><i class="fas fa-stethoscope"></i> Manage Doctors</a>
     </div>
@@ -81,7 +82,12 @@ include 'header.php';
         <?php else: ?>
             <table class="card-table">
                 <thead>
-                    <tr><th>From</th><th>Subject</th><th>Date</th><th></th></tr>
+                    <tr>
+                        <th>From</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($recentMessages as $m): ?>
