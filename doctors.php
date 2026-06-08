@@ -625,7 +625,7 @@ $pageTitle = 'Find a Doctor';
             <?php
             if (isset($conn)) {
                 $sql = "SELECT d.id, d.user_id, d.specialization, d.rating, d.bio, d.profile_image, d.consultation_fee, d.availability,
-                        CONCAT(u.first_name, ' Dr. ', u.last_name) as display_title,
+                        u.first_name, u.last_name,
                         CONCAT(u.first_name, ' ', u.last_name) as full_name
                         FROM doctors d
                         JOIN users u ON d.user_id = u.id
@@ -641,15 +641,32 @@ $pageTitle = 'Find a Doctor';
                         $title    = 'Specialist – ' . htmlspecialchars($row['specialization']);
                         $bio      = strip_tags($row['bio'] ?? '');
                         if (strlen($bio) > 100) $bio = substr($bio, 0, 100) . '...';
-                        $img_file = $row['profile_image'] ?? '';
-                        if (!empty($img_file) && !preg_match('/^https?:\/\//', $img_file)) {
+                        // Specialty → avatar background colour (UI-Avatars API)
+                        $spec_colors = [
+                            'Cardiology'           => 'e53e3e',
+                            'Neurology'            => '6b46c1',
+                            'Pediatrics'           => 'dd6b20',
+                            'Paediatrics'          => 'dd6b20',
+                            'Dermatology'          => 'd69e2e',
+                            'Orthopedics'          => '2b6cb0',
+                            'Orthopaedics'         => '2b6cb0',
+                            'General Practitioner' => '2f855a',
+                            'Gynaecology'          => 'c0286c',
+                            'ENT'                  => 'c05621',
+                            'Endocrinology'        => '276749',
+                        ];
+                        $avatar_bg  = $spec_colors[$row['specialization']] ?? '0aa698';
+                        $avatar_url = "https://ui-avatars.com/api/?name=" . urlencode($row['first_name'] . '+' . $row['last_name']) . "&size=300&background={$avatar_bg}&color=fff&bold=true&font-size=0.38";
+                        $img_file   = $row['profile_image'] ?? '';
+                        // Use local file only if it's real (not the generic placeholder)
+                        if (!empty($img_file) && $img_file !== 'default-doc.jpg' && !preg_match('/^https?:\/\//', $img_file)) {
                             $img = htmlspecialchars('assets/images/' . $img_file);
-                        } elseif (!empty($img_file)) {
+                        } elseif (!empty($img_file) && preg_match('/^https?:\/\//', $img_file)) {
                             $img = htmlspecialchars($img_file);
                         } else {
-                            $initials = urlencode(substr($row['first_name'] ?? 'D', 0, 1) . (substr($row['last_name'] ?? 'R', 0, 1)));
-                            $img = "https://ui-avatars.com/api/?name=" . urlencode(($row['first_name'] ?? 'Doctor') . ' ' . ($row['last_name'] ?? '')) . "&size=300&background=0aa698&color=fff&bold=true&rounded=true";
+                            $img = $avatar_url;
                         }
+                        $fallback_img = $avatar_url;
                         $rating   = $row['rating'] ? round($row['rating'], 1) : 0;
                         $count    = 0; // reviews table may not exist yet
                         $full_stars = floor($rating);
@@ -660,7 +677,6 @@ $pageTitle = 'Find a Doctor';
                             elseif ($i == $full_stars + 1 && $has_half) $stars_html .= '★';
                             else $stars_html .= '☆';
                         }
-                        $fallback_img = 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&size=300&background=0aa698&color=fff&bold=true&rounded=true';
             ?>
                         <div class="doctor-card" data-name="<?php echo $name; ?>" data-specialty="<?php echo $specialty; ?>" data-rating="<?php echo $rating; ?>">
                             <div class="doc-specialty-bar"></div>

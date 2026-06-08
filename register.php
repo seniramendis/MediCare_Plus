@@ -27,6 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $sql = "INSERT INTO users (first_name, last_name, email, password_hash, role, created_at)
                         VALUES ('$first_name','$last_name','$email','$hashed','patient', NOW())";
                 if (mysqli_query($conn, $sql)) {
+                    // Auto-create patient profile so book_appointment.php can find it
+                    $new_user_id = $conn->insert_id;
+                    $conn->query("INSERT IGNORE INTO patients (user_id) VALUES ($new_user_id)");
                     header("Location: Login.php?registered=1");
                     exit();
                 } else {

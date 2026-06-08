@@ -55,6 +55,21 @@ function fetch_user_by_id($id)
     return $stmt->get_result()->fetch_assoc();
 }
 
+// --- ALL USERS (for messaging recipient list) ---
+function fetch_all_users()
+{
+    global $conn;
+    $query = "SELECT id, first_name, last_name, role FROM users ORDER BY role, first_name, last_name";
+    $result = $conn->query($query);
+    $users = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $users[] = $row;
+        }
+    }
+    return $users;
+}
+
 // --- DOCTOR FUNCTIONS ---
 function fetch_all_doctors()
 {

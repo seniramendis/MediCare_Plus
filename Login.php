@@ -21,9 +21,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($login_type == 'patient' && $user['role'] == 'doctor') {
                 $error = "You are a Doctor. Please switch to the Doctor Login tab.";
             } else {
-                $_SESSION['user_id']  = $user['id'];
-                $_SESSION['username'] = $user['first_name'] . ' ' . $user['last_name'];
-                $_SESSION['role']     = $user['role'];
+                $_SESSION['user_id']   = $user['id'];
+                $_SESSION['username']  = $user['first_name'] . ' ' . $user['last_name'];
+                $_SESSION['role']      = $user['role'];
+                $_SESSION['user_role'] = $user['role'];
                 if (isset($_SESSION['admin_id'])) unset($_SESSION['admin_id']);
                 header("Location: " . ($user['role'] == 'doctor' ? "dashboard_doctor.php" : "dashboard_patient.php"));
                 exit();

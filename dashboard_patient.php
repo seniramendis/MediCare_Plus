@@ -18,6 +18,11 @@ if ($connection) {
         $stmt->execute();
         $patient = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+        // Auto-create if missing
+        if (!$patient) {
+            $connection->query("INSERT IGNORE INTO patients (user_id) VALUES ({$_SESSION['user_id']})");
+            $patient = ['id' => $connection->insert_id];
+        }
     }
 
     if ($patient) {

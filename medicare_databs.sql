@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS `doctors` (
   `id`               INT UNSIGNED  NOT NULL AUTO_INCREMENT,
   `user_id`          INT UNSIGNED  NOT NULL UNIQUE,
   `specialization`   VARCHAR(150)  NOT NULL,
+  `qualifications`   VARCHAR(500)  DEFAULT NULL,
+  `experience_years` INT UNSIGNED  NOT NULL DEFAULT 0,
   `consultation_fee` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `availability`     VARCHAR(255)  DEFAULT 'Mon-Fri 9am-5pm',
   `rating`           DECIMAL(3,1)  NOT NULL DEFAULT 0.0,
@@ -52,6 +54,11 @@ CREATE TABLE IF NOT EXISTS `doctors` (
   PRIMARY KEY (`id`),
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- Ensure columns exist on already-created tables (idempotent migration)
+ALTER TABLE `doctors`
+  ADD COLUMN IF NOT EXISTS `qualifications`   VARCHAR(500) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS `experience_years` INT UNSIGNED NOT NULL DEFAULT 0;
 
 -- -------------------------------------------------------
 -- SERVICES  ← THIS WAS THE MISSING TABLE
