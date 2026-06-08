@@ -626,7 +626,7 @@ $pageKey = 'home';
                 <a href="book_appointment.php" class="hero-btn hero-btn-primary">
                     <i class="fa-regular fa-calendar-check"></i> Book Appointment
                 </a>
-                <a href="find_a_doctor.php" class="hero-btn hero-btn-outline">
+                <a href="doctors.php" class="hero-btn hero-btn-outline">
                     <i class="fa-solid fa-user-doctor"></i> Find a Doctor
                 </a>
             </div>
